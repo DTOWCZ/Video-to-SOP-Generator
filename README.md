@@ -142,6 +142,119 @@ Video-to-SOP Generator/
 
 ## Example Output
 
+Here's what the generated SOP looks like:
+
+### 📄 Sample: Flat Tire Repair SOP
+
+**Input:** 4-minute training video  
+**Output:** Professional 18-page SOP manual  
+**Processing Time:** 2 minutes
+
+#### Cover Page
+<img src="Example_output/test_cleanup_page-0001.jpg" width="400" alt="SOP Cover Page">
+
+*Professional cover page with title, company name, and date*
+
+#### Table of Contents & Safety Notes
+<img src="Example_output/test_cleanup_page-0002.jpg" width="400" alt="Table of Contents">
+
+*Automatically generated table of contents with safety considerations*
+
+#### Procedure Steps with Images
+<img src="Example_output/test_cleanup_page-0003.jpg" width="400" alt="Step 1">
+<img src="Example_output/test_cleanup_page-0005.jpg" width="400" alt="Step 3">
+<img src="Example_output/test_cleanup_page-0008.jpg" width="400" alt="Step 6">
+
+*Each step includes clear instructions, timestamp reference, and corresponding image from the video*
+
+#### Complete Procedure
+<img src="Example_output/test_cleanup_page-0015.jpg" width="400" alt="Final Steps">
+
+*Includes reassembly and verification steps for complete procedures*
+
+**[View All Pages →](Example_output/)**
+
+### What's Included in Every SOP:
+
+- ✅ **Cover Page** - Professional title page with company branding
+- ✅ **Table of Contents** - Easy navigation to all sections
+- ✅ **Safety Section** - Automatically identified safety considerations
+- ✅ **Step-by-Step Instructions** - Clear, actionable steps with:
+  - Numbered steps in logical order
+  - Timestamp references from video
+  - High-quality images showing each action
+  - Reasoning/tips for each step
+- ✅ **Complete Procedures** - Includes:
+  - Disassembly steps
+  - Repair/maintenance actions
+  - Reassembly in correct order
+  - Final verification and testing
+
+---
+
+## Project Structure
+
+```
+Video-to-SOP Generator/
+├── main.py                    # Main application
+├── video_processor.py         # Frame extraction (FFmpeg)
+├── sop_analyzer.py           # AI analysis (Gemini)
+├── whisper_transcription.py  # Audio transcription (Whisper)
+├── pdf_generator.py          # PDF creation
+├── requirements.txt          # Dependencies
+├── .env.example             # API key template
+├── Example_output/          # Sample output PDFs (18 pages)
+└── README.md                # This file
+```
+
+---
+
+## How It Works
+
+### Pipeline
+
+```
+Video Input → Audio Transcription → Frame Extraction → AI Analysis → PDF Generation → Cleanup
+     ↓              ↓                     ↓                 ↓              ↓           ↓
+  .mp4/.webm   Timestamped text      Key frames       Complete SOP   Professional  Auto delete
+                                                                          PDF        temp files
+```
+
+### Detailed Process
+
+### 1. Audio Transcription (`whisper_transcription.py`)
+- Extracts audio from video using FFmpeg
+- Transcribes with Whisper Large V3 via Groq
+- Generates timestamped segments: `[15.3s - 18.7s]: spoken text`
+- Provides context for better frame-to-instruction matching
+
+### 2. Frame Extraction (`video_processor.py`)
+- Uses FFmpeg for fast extraction (15x faster than OpenCV!)
+- Extracts frames at specified intervals (default: 2 seconds)
+- Resizes images for optimal AI processing
+- Maintains timestamp information for correlation
+
+### 3. AI Analysis (`sop_analyzer.py`)
+- Sends frames and timestamped transcript to Gemini 1.5 Flash
+- Uses enhanced prompt for complete procedures
+- Cross-references audio timestamps with frame timestamps
+- Returns structured JSON with steps, safety notes, and reasoning
+
+### 4. PDF Generation (`pdf_generator.py`)
+- Creates professional document layout
+- Embeds images at relevant steps
+- Includes safety notes and table of contents
+- Professional formatting with headers and page numbers
+
+### 5. Automatic Cleanup (`main.py`)
+- Deletes temporary extracted frames
+- Keeps only the final PDF
+- Prevents old/new frame mixing on next run
+
+---
+
+## Example Output (Detailed)
+
 The generated PDF includes:
 
 - **Title Page**: Task name, description, document info
