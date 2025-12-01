@@ -1,19 +1,38 @@
-# Video-to-SOP Generator
+# Video-to-SOP Generator 🎬 → 📄
 
 Convert training videos into professional Standard Operating Procedure (SOP) manuals automatically using AI.
 
+## ✨ What's New in v2.0
+
+- ⚡ **15x Faster** - FFmpeg-powered frame extraction
+- 🎯 **Better Accuracy** - Timestamped audio transcription
+- ✅ **Complete Procedures** - Includes reassembly and verification steps
+- 📊 **Timing Display** - See performance breakdown for each phase
+- 🧹 **Auto Cleanup** - Automatic frame cleanup after generation
+
 ## Overview
 
-This tool uses multimodal AI (Gemini 1.5 Pro) to watch industrial/manufacturing training videos and generate step-by-step instruction manuals with screenshots.
+This tool uses multimodal AI (Gemini 1.5 Flash) and Whisper to watch industrial/manufacturing training videos and generate step-by-step instruction manuals with screenshots.
 
 ## Features
 
-- 🎥 **Video Processing**: Extracts key frames from training videos using FFmpeg (15x faster!)
-- 🎙️ **Audio Transcription**: High-quality speech-to-text using Whisper AI
-- 🤖 **AI Analysis**: Uses Gemini 1.5 Flash to understand and document procedures
-- 📄 **PDF Generation**: Creates professional SOP manuals with images
-- ⚡ **Fast Processing**: FFmpeg-powered frame extraction for optimal performance
+- 🎥 **FFmpeg Video Processing**: Extracts key frames 15x faster than traditional methods
+- 🎙️ **Timestamped Audio**: High-quality speech-to-text with precise timestamps using Whisper AI
+- 🤖 **AI Analysis**: Uses Gemini 1.5 Flash to understand and document complete procedures
+- 📄 **Professional PDFs**: Creates polished SOP manuals with images and clear instructions
+- ⚡ **Fast Processing**: 4-minute video → Complete SOP in ~2 minutes
 - 🔒 **Safety Notes**: Automatically identifies safety considerations
+- ✅ **Complete Procedures**: Includes disassembly, repair, reassembly, and verification steps
+- 🧹 **Auto Cleanup**: Automatically removes temporary frames after generation
+
+## Performance
+
+**4-minute video (1920x1080):**
+- Audio Transcription: ~30s
+- Frame Extraction: ~8s (15x faster with FFmpeg!)
+- AI Analysis: ~75s
+- PDF Generation: ~5s
+- **Total: ~2 minutes** ⚡
 
 ## Installation
 
@@ -40,11 +59,16 @@ This tool uses multimodal AI (Gemini 1.5 Pro) to watch industrial/manufacturing 
    pip install -r requirements.txt
    ```
 
-4. **Set up your API key**:
+4. **Install FFmpeg** (for fast frame extraction):
+   - Windows: `choco install ffmpeg` or see [FFMPEG_SETUP.md](FFMPEG_SETUP.md)
+   - Verify: `ffmpeg -version`
+
+5. **Set up your API keys**:
    - Copy `.env.example` to `.env`
-   - Add your Gemini API key:
+   - Add your API keys:
      ```
-     GEMINI_API_KEY=your_actual_api_key_here
+     GOOGLE_API_KEY=your_google_gemini_api_key_here
+     GROQ_API_KEY=your_groq_api_key_here
      ```
 
 ## Usage
@@ -56,18 +80,19 @@ python main.py path/to/video.mp4
 ```
 
 This will:
-1. Process the video
-2. Analyze it with AI
-3. Generate `output_sop.pdf`
+1. Extract audio and create timestamped transcript
+2. Extract key frames (fast with FFmpeg!)
+3. Analyze with AI to generate complete procedure
+4. Generate professional PDF
+5. Automatically cleanup temporary frames
 
 ### Advanced Usage
 
 ```bash
 python main.py video.mp4 \
   --output my_sop.pdf \
-  --context "Engine valve assembly process" \
-  --company "ACME Manufacturing" \
-  --direct-video
+  --context "Car Tire Repair and Replacement" \
+  --company "Shezan Car Garage"
 ```
 
 ### Command-Line Options
@@ -78,7 +103,6 @@ python main.py video.mp4 \
 | `-o, --output` | Output PDF filename | `output_sop.pdf` |
 | `-c, --context` | Task context for better analysis | Auto-detected |
 | `--company` | Company name for PDF header | "Your Company" |
-| `--direct-video` | Upload video directly to Gemini | Frame extraction |
 
 ## How It Works
 

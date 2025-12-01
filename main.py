@@ -138,6 +138,26 @@ class VideoToSOPGenerator:
         # Calculate total time
         total_elapsed = time.time() - total_start_time
         
+        # Step 4: Cleanup extracted frames
+        print("\n" + "=" * 60)
+        print("STEP 4: CLEANUP")
+        print("=" * 60)
+        
+        try:
+            import shutil
+            if os.path.exists(frames_dir):
+                # Count frames before deletion
+                frame_count = len(os.listdir(frames_dir))
+                # Delete the entire directory
+                shutil.rmtree(frames_dir)
+                print(f"✓ Deleted {frame_count} extracted frames from '{frames_dir}/'")
+                print("  (Prevents mixing old and new frames on next run)")
+            else:
+                print(f"⚠️  No frames directory found to clean up")
+        except Exception as e:
+            print(f"⚠️  Could not delete extracted frames: {e}")
+            print("   (You may need to manually delete the 'extracted_frames' folder)")
+        
         print("\n" + "=" * 60)
         print("COMPLETE!")
         print("=" * 60)

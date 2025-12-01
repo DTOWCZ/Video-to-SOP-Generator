@@ -101,10 +101,10 @@ class SOPAnalyzer:
         if audio_transcript:
             audio_section = f"""
 
-Audio Transcript:
+Audio Transcript (with timestamps):
 {audio_transcript}
 
-Use the audio transcript to better understand what is being said or explained during the procedure. The spoken words provide important context about the actions being performed.
+IMPORTANT: Use the audio transcript timestamps to match spoken words with the correct video frames. When someone explains an action at a specific time, that helps you identify which frame shows that action. Cross-reference the audio timestamps with frame timestamps to ensure accurate step-to-image matching.
 """
         
         prompt = f"""You are an expert Technical Writer specializing in Standard Operating Procedures (SOPs) for industrial and manufacturing processes.
@@ -152,7 +152,9 @@ Important Guidelines:
 - Use imperative voice ("Pick up", "Turn", "Connect", not "The worker picks up")
 - Be specific about tools, parts, and measurements
 - Include safety warnings if relevant
-- Choose timestamps where the action is CLEAREST
+- **CRITICAL**: Choose the timestamp where the action is MOST VISIBLE and CLEAREST in the frames
+- **Match audio to frames**: If audio says "now remove the bolt" at 15.3s, pick the frame closest to that time
+- **Verify frame content**: Make sure the frame at your chosen timestamp actually shows what your instruction describes
 - For repair procedures: Include BOTH disassembly steps AND reassembly steps
 - For reassembly: Reference which parts are being reinstalled (e.g., "Reinstall the valve cover", "Reattach the bolts")
 - Include final verification steps (e.g., "Test the repair", "Check for leaks", "Verify operation")

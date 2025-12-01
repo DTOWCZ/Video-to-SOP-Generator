@@ -92,10 +92,29 @@ def transcribe_with_whisper_groq(audio_path: str, groq_api_key: str) -> Optional
                 response_format="verbose_json",
             )
         
+        # Get full transcript text
         transcript = transcription.text
-        print(f"✓ Transcription complete: {len(transcript)} characters")
         
-        return transcript
+        # Try to get timestamped segments if available
+        formatted_transcript = transcript
+        try:
+            if hasattr(transcription, 'segments') and transcription.segments:
+                # Format with timestamps
+                segments_text = []
+                for segment in transcription.segments:
+                    start_time = segment.get('start', 0)
+                    end_time = segment.get('end', 0)
+                    text = segment.get('text', '').strip()
+                    segments_text.append(f"[{start_time:.1f}s - {end_time:.1f}s]: {text}")
+                
+                formatted_transcript = "\n".join(segments_text)
+                print(f"✓ Transcription complete with {len(transcription.segments)} timestamped segments")
+            else:
+                print(f"✓ Transcription complete: {len(transcript)} characters")
+        except Exception as e:
+            print(f"⚠️  Timestamps not available, using plain text: {e}")
+        
+        return formatted_transcript
         
     except Exception as e:
         print(f"❌ Error during transcription: {e}")
