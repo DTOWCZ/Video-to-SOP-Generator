@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Video to SOP Generator{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <h1>User Profile</h1>
+        
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <div class="avatar-circle">{{ current_user.username[0].upper() }}</div>
+            </div>
+            
+            <div class="profile-details">
+                <div class="detail-group">
+                    <label>Username</label>
+                    <div class="detail-value">{{ current_user.username }}</div>
+                </div>
+                
+                <div class="detail-group">
+                    <label>Email</label>
+                    <div class="detail-value">{{ current_user.email }}</div>
+                </div>
+                
+                <div class="detail-group">
+                    <label>Company Name</label>
+                    <div class="detail-value">{{ current_user.company_name }}</div>
+                </div>
+                
+                <div class="detail-group">
+                    <label>Member Since</label>
+                    <div class="detail-value">{{ current_user.created_at.strftime('%B %d, %Y') }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

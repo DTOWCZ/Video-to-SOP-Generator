@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Video to SOP Generator{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1>🎥 Video to SOP Generator</h1>
+    <p class="hero-subtitle">Transform your instructional videos into professional Standard Operating Procedures</p>
+    
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Fast Processing</h3>
+            <p>Process videos in minutes with FFmpeg optimization (15x faster)</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>AI-Powered</h3>
+            <p>Google Gemini AI analyzes frames and creates detailed step-by-step instructions</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Accurate Transcripts</h3>
+            <p>Whisper AI provides timestamped audio transcription for precise image-to-instruction matching</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">📄</div>
+            <h3>Professional PDFs</h3>
+            <p>Generate beautifully formatted SOPs with cover page, table of contents, and images</p>
+        </div>
+    </div>
+    
+    <div class="cta-buttons">
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+    </div>
+    
+    <div class="info-section">
+        <h2>How It Works</h2>
+        <div class="steps-grid">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Upload Video</h3>
+                <p>Upload your instructional video (MP4, AVI, MOV, WebM, MKV)</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Add Context</h3>
+                <p>Provide optional context about the procedure</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>AI Processing</h3>
+                <p>Our AI extracts frames, transcribes audio, and generates instructions</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Download SOP</h3>
+                <p>Get your professional PDF with your company branding</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

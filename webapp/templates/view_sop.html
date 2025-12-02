@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}{{ sop.title }} - Video to SOP Generator{% endblock %}
+
+{% block content %}
+<div class="sop-view">
+    <div class="sop-header">
+        <a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
+        <h1>{{ sop.title }}</h1>
+        <div class="sop-actions">
+            <a href="{{ url_for('download_sop', sop_id=sop.id) }}" class="btn btn-primary">
+                ⬇️ Download PDF
+            </a>
+            <form method="POST" action="{{ url_for('delete_sop', sop_id=sop.id) }}" style="display:inline;"
+                  onsubmit="return confirm('Are you sure you want to delete this SOP?');">
+                <button type="submit" class="btn btn-danger">🗑️ Delete</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="sop-info">
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Company:</span>
+                <span class="info-value">{{ current_user.company_name }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Steps Count:</span>
+                <span class="info-value">{{ sop.steps_count }} steps</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Processing Time:</span>
+                <span class="info-value">{{ '%d:%02d' | format((sop.processing_time // 60)|int, (sop.processing_time % 60)|int) }} minutes</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Created:</span>
+                <span class="info-value">{{ sop.created_at.strftime('%B %d, %Y at %H:%M') }}</span>
+            </div>
+            
+            {% if sop.context %}
+            <div class="info-item full-width">
+                <span class="info-label">Context:</span>
+                <span class="info-value">{{ sop.context }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if sop.description %}
+    <div class="sop-description">
+        <h2>Description</h2>
+        <p>{{ sop.description }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="sop-preview">
+        <h2>PDF Preview</h2>
+        <p>Download the PDF to view the complete SOP with all images and detailed instructions.</p>
+        <div class="preview-placeholder">
+            <div class="preview-icon">📄</div>
+            <p><strong>{{ sop.title }}.pdf</strong></p>
+            <p>{{ sop.steps_count }} steps with images</p>
+            <a href="{{ url_for('download_sop', sop_id=sop.id) }}" class="btn btn-primary">
+                ⬇️ Download PDF
+            </a>
+        </div>
+    </div>
+    
+    <div class="sop-metadata">
+        <h3>File Information</h3>
+        <table class="metadata-table">
+            <tr>
+                <td>Video File:</td>
+                <td><code>{{ sop.video_filename }}</code></td>
+            </tr>
+            <tr>
+                <td>PDF File:</td>
+                <td><code>{{ sop.pdf_filename }}</code></td>
+            </tr>
+            <tr>
+                <td>Created By:</td>
+                <td>{{ current_user.username }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

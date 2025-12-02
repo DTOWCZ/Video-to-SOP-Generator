@@ -1,0 +1,27 @@
+name: video-sop-generator
+region: nyc
+services:
+- name: web
+  environment_slug: python
+  github:
+    repo: Shezan57/Video-to-SOP-Generator
+    branch: main
+    deploy_on_push: true
+  build_command: pip install -r requirements.txt
+  run_command: gunicorn --chdir webapp app:app --timeout 300 --workers 2 --bind 0.0.0.0:8080
+  http_port: 8080
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  envs:
+  - key: SECRET_KEY
+    scope: RUN_TIME
+    value: ${SECRET_KEY}
+  - key: GROQ_API_KEY
+    scope: RUN_TIME
+    value: ${GROQ_API_KEY}
+  - key: GEMINI_API_KEY
+    scope: RUN_TIME
+    value: ${GEMINI_API_KEY}
+  - key: PYTHON_VERSION
+    scope: RUN_TIME
+    value: "3.11.0"

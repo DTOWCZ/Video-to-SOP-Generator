@@ -64,3 +64,21 @@ desktop.ini
 sample_video.mp4
 demo_output.pdf
 output_sop.pdf
+
+# Frontend specific
+frontend/uploads/*.mp4
+frontend/uploads/*.avi
+frontend/uploads/*.mov
+frontend/uploads/*.webm
+frontend/uploads/*.mkv
+frontend/outputs/*.pdf
+frontend/*.db
+frontend/sop_generator.db
+
+# Web app specific
+webapp/uploads/*
+!webapp/uploads/.gitkeep
+webapp/generated_sops/*
+!webapp/generated_sops/.gitkeep
+webapp/*.db
+webapp/video_sop.db

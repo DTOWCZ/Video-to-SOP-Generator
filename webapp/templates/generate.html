@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Generate SOP - Video to SOP Generator{% endblock %}
+
+{% block content %}
+<div class="generate-container">
+    <div class="generate-card">
+        <h1>Generate New SOP</h1>
+        <p class="generate-subtitle">Upload your instructional video and we'll create a professional SOP document</p>
+        
+        <form method="POST" action="{{ url_for('generate_sop') }}" enctype="multipart/form-data" id="generateForm">
+            <div class="form-group">
+                <label for="video">Video File</label>
+                <div class="file-upload">
+                    <input type="file" id="video" name="video" accept=".mp4,.avi,.mov,.webm,.mkv" required>
+                    <label for="video" class="file-label">
+                        <span class="file-icon">📹</span>
+                        <span class="file-text">Choose video file or drag and drop</span>
+                        <span class="file-name"></span>
+                    </label>
+                </div>
+                <small>Supported formats: MP4, AVI, MOV, WebM, MKV (Max: 500MB)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="context">Context (Optional)</label>
+                <textarea id="context" name="context" rows="4" maxlength="500"
+                          placeholder="Provide any additional context about the procedure (e.g., 'This is a maintenance procedure for industrial equipment' or 'Repair process for electronic devices')"></textarea>
+                <small>Help the AI understand what the video is about (0/500 characters)</small>
+            </div>
+            
+            <div class="processing-info">
+                <h3>ℹ️ What to Expect:</h3>
+                <ul>
+                    <li>⏱️ Processing time: ~2 minutes for a 4-minute video</li>
+                    <li>🎤 Audio will be transcribed with timestamps</li>
+                    <li>📸 Key frames will be extracted every 2 seconds</li>
+                    <li>🤖 AI will analyze and create step-by-step instructions</li>
+                    <li>📄 Professional PDF will be generated with your company branding</li>
+                </ul>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                🚀 Generate SOP
+            </button>
+        </form>
+        
+        <div id="progressSection" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Processing your video...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// File input handling
+const fileInput = document.getElementById('video');
+const fileLabel = document.querySelector('.file-label');
+const fileName = document.querySelector('.file-name');
+
+fileInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        fileName.textContent = file.name + ' (' + (file.size / (1024*1024)).toFixed(2) + ' MB)';
+        fileName.style.display = 'block';
+    }
+});
+
+// Character counter for context
+const contextInput = document.getElementById('context');
+const contextSmall = contextInput.nextElementSibling;
+
+contextInput.addEventListener('input', function() {
+    const length = this.value.length;
+    contextSmall.textContent = `Help the AI understand what the video is about (${length}/500 characters)`;
+});
+
+// Form submission
+const form = document.getElementById('generateForm');
+const submitBtn = document.getElementById('submitBtn');
+const progressSection = document.getElementById('progressSection');
+
+form.addEventListener('submit', function(e) {
+    // Show progress
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Processing...';
+    progressSection.style.display = 'block';
+    
+    // Simulate progress (actual progress will be on server)
+    let progress = 0;
+    const interval = setInterval(function() {
+        progress += 1;
+        document.getElementById('progressFill').style.width = progress + '%';
+        
+        if (progress >= 95) {
+            clearInterval(interval);
+        }
+    }, 1000);
+});
+
+// Drag and drop
+const fileUpload = document.querySelector('.file-upload');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    fileUpload.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    fileUpload.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    fileUpload.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight(e) {
+    fileUpload.classList.add('highlight');
+}
+
+function unhighlight(e) {
+    fileUpload.classList.remove('highlight');
+}
+
+fileUpload.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    
+    fileInput.files = files;
+    
+    if (files.length > 0) {
+        const file = files[0];
+        fileName.textContent = file.name + ' (' + (file.size / (1024*1024)).toFixed(2) + ' MB)';
+        fileName.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}
