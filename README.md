@@ -2,7 +2,7 @@
 
 Convert training videos into professional Standard Operating Procedure (SOP) manuals automatically using AI.
 
-## ✨ What's New in v2.0
+## ✨ What's New in v2.1
 
 - ⚡ **15x Faster** - FFmpeg-powered frame extraction
 - 🎯 **Better Accuracy** - Timestamped audio transcription
@@ -40,18 +40,22 @@ This tool uses multimodal AI (Gemini 1.5 Flash) and Whisper to watch industrial/
 
 - Python 3.8+
 - FFmpeg ([Installation guide](FFMPEG_SETUP.md))
-- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
-- Groq API key for Whisper transcription ([Get one here](https://console.groq.com/))
+- **AI Backend Options:**
+  - **LOCAL (Recommended for GPU users):** [Ollama](https://ollama.com/) with a Vision model (e.g., `llama3.2-vision`) + `faster-whisper`.
+  - **API (Cloud):** Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikey)) + Groq API key for Whisper ([Get one here](https://console.groq.com/)).
 
 ### Setup
 
 1. **Clone or download this repository**
+   ```bash
+   git clone https://github.com/DTOWCZ/Video-to-SOP-Generator.git
+   ```
 
 2. **Create a virtual environment** (recommended):
    ```bash
-   python -m venv myvenv
-   .\myvenv\Scripts\activate  # Windows
-   source myvenv/bin/activate  # Linux/Mac
+   python -m venv venv
+   .\venv\Scripts\activate  # Windows
+   source venv/bin/activate  # Linux/Mac
    ```
 
 3. **Install dependencies**:
@@ -63,11 +67,12 @@ This tool uses multimodal AI (Gemini 1.5 Flash) and Whisper to watch industrial/
    - Windows: `choco install ffmpeg` or see [FFMPEG_SETUP.md](FFMPEG_SETUP.md)
    - Verify: `ffmpeg -version`
 
-5. **Set up your API keys**:
+5. **Set up your environment**:
    - Copy `.env.example` to `.env`
-   - Add your API keys:
+   - Configure `AI_MODE` (LOCAL or API)
+   - Add your API keys if using API mode:
      ```
-     GOOGLE_API_KEY=your_google_gemini_api_key_here
+     GOOGLE_API_KEY=your_google_api_key_here
      GROQ_API_KEY=your_groq_api_key_here
      ```
 
@@ -235,7 +240,8 @@ Video Input → Audio Transcription → Frame Extraction → AI Analysis → PDF
 - Maintains timestamp information for correlation
 
 ### 3. AI Analysis (`sop_analyzer.py`)
-- Sends frames and timestamped transcript to Gemini 1.5 Flash
+- **Hybrid Mode**: Supports both Google Gemini API (Cloud) and Ollama VLM (Local GPU)
+- Sends frames and timestamped transcript to the AI model
 - Uses enhanced prompt for complete procedures
 - Cross-references audio timestamps with frame timestamps
 - Returns structured JSON with steps, safety notes, and reasoning
@@ -339,7 +345,7 @@ generation_config={
 
 ## Future Enhancements
 
-- [ ] Web interface (Flask/Django)
+- [x] Web interface (Flask/Dashboard) ✅
 - [ ] Multi-language support
 - [ ] Video quality validation
 - [ ] Custom branding options

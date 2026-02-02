@@ -25,10 +25,10 @@ load_dotenv()
 
 def get_ai_mode() -> str:
     """
-    Zjistí aktuální AI režim z .env.
+    Determine current AI mode from .env.
     
     Returns:
-        'API' nebo 'LOCAL'
+        'API' or 'LOCAL'
     """
     return os.getenv("AI_MODE", "API").upper()
 
@@ -41,13 +41,13 @@ class VideoToSOPGenerator:
         Initialize the generator.
         
         Args:
-            mode: 'API', 'LOCAL' nebo None (auto z .env)
+            mode: 'API', 'LOCAL' or None (auto from .env)
         """
         self.mode = mode or get_ai_mode()
         self.video_processor = VideoFrameExtractor(interval_seconds=2)
         self.pdf_generator = SOPPDFGenerator()
         
-        # CZ: Zobrazíme aktuální režim
+        # Display current mode
         print(f"\n🔧 AI Mode: {self.mode}")
         if self.mode == "LOCAL":
             print("   Using: Ollama VLM + faster-whisper (GPU)")
@@ -98,14 +98,14 @@ class VideoToSOPGenerator:
         print("STEP 1: VIDEO PROCESSING")
         print("=" * 60)
         
-        # Step 1a: Extract audio transcript (hybridní režim)
+        # Step 1a: Extract audio transcript (hybrid mode)
         audio_transcript = ""
         audio_start_time = time.time()
         audio_elapsed = 0
         try:
             from whisper_transcription import get_transcript
             
-            # CZ: Použije správný backend podle AI_MODE
+            # Uses correct backend based on AI_MODE
             audio_transcript = get_transcript(video_path, mode=self.mode) or ""
             
             if audio_transcript:
@@ -138,13 +138,13 @@ class VideoToSOPGenerator:
         print(f"\n✓ Extracted {len(frames)} frames")
         print(f"  Time: {int(frame_elapsed // 60)}m {int(frame_elapsed % 60)}s")
         
-        # Step 2: Analyze with AI (hybridní režim)
+        # Step 2: Analyze with AI (hybrid mode)
         print("\n" + "=" * 60)
         print(f"STEP 2: AI ANALYSIS ({self.mode} mode)")
         print("=" * 60)
         analysis_start_time = time.time()
         
-        # CZ: Použije správný backend podle AI_MODE
+        # Use correct backend based on AI_MODE
         from sop_analyzer import analyze_frames
         sop_data = analyze_frames(frames, context, audio_transcript, mode=self.mode)
         
@@ -242,11 +242,11 @@ def main():
     
     args = parser.parse_args()
     
-    # CZ: Zjistíme režim a ověříme prerekvizity
+    # Determine mode and verify prerequisites
     ai_mode = get_ai_mode()
     
     if ai_mode == "API":
-        # CZ: V API módu potřebujeme klíče
+        # API mode requires keys
         if not os.getenv("GOOGLE_API_KEY"):
             print("ERROR: GOOGLE_API_KEY not found!")
             print("Please create a .env file with your API key:")
@@ -255,7 +255,7 @@ def main():
             print("  AI_MODE=LOCAL")
             sys.exit(1)
     else:
-        # CZ: V LOCAL módu ověříme Ollama
+        # Verify Ollama in LOCAL mode
         print("\n🔍 Checking local GPU prerequisites...")
         try:
             from local_vlm import OllamaVLMAnalyzer

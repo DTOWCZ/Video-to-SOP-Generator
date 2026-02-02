@@ -13,8 +13,8 @@ from pathlib import Path
 
 class LocalWhisperTranscriber:
     """
-    Lokální Whisper transkripce přes faster-whisper.
-    Využívá GPU pro maximální rychlost.
+    Local Whisper transcription via faster-whisper.
+    Uses GPU for maximum speed.
     """
     
     def __init__(
@@ -27,9 +27,9 @@ class LocalWhisperTranscriber:
         Inicializace lokálního Whisper modelu.
         
         Args:
-            model_size: Velikost modelu (tiny, base, small, medium, large-v3)
-            compute_type: Typ výpočtu (float16, int8, int8_float16)
-            device: Zařízení pro inference (cuda, cpu)
+            model_size: Model size (tiny, base, small, medium, large-v3)
+            compute_type: Computation type (float16, int8, int8_float16)
+            device: Inference device (cuda, cpu)
         """
         self.model_size = model_size
         self.compute_type = compute_type
@@ -37,14 +37,14 @@ class LocalWhisperTranscriber:
         self.model = None
         
     def _load_model(self):
-        """Lazy loading modelu - načte se až při prvním použití."""
+        """Lazy loading of the model - loads only on first use."""
         if self.model is None:
             try:
                 from faster_whisper import WhisperModel
                 
                 print(f"Loading Whisper model: {self.model_size} ({self.compute_type})...")
                 
-                # CZ: Načtení modelu na GPU s optimalizovaným compute typem
+                # Load model on GPU with optimized compute type
                 self.model = WhisperModel(
                     self.model_size,
                     device=self.device,
@@ -67,12 +67,12 @@ class LocalWhisperTranscriber:
         task: str = "transcribe"
     ) -> str:
         """
-        Přepis audio souboru na text s časovými značkami.
+        Transcription of audio file to text with timestamps.
         
         Args:
-            audio_path: Cesta k audio souboru
-            language: Jazyk nahrávky (None = auto-detect)
-            task: "transcribe" nebo "translate" (do angličtiny)
+            audio_path: Path to audio file
+            language: Audio language (None = auto-detect)
+            task: "transcribe" or "translate" (to English)
             
         Returns:
             Formátovaný přepis s časovými značkami
@@ -81,20 +81,20 @@ class LocalWhisperTranscriber:
         
         print(f"Transcribing: {audio_path}")
         
-        # CZ: Spuštění transkripce s timestamps
+        # Run transcription with timestamps
         segments, info = self.model.transcribe(
             audio_path,
             language=language,
             task=task,
             beam_size=5,
-            word_timestamps=False,  # CZ: Segmenty stačí, slova by bylo moc
-            vad_filter=True,  # CZ: Filtruje ticho pro rychlejší zpracování
+            word_timestamps=False,  # Segments are enough, words would be too many
+            vad_filter=True,  # Filter silence for faster processing
         )
         
-        # CZ: Detekovaný jazyk
+        # Detected language
         print(f"✓ Detected language: {info.language} (probability: {info.language_probability:.2f})")
         
-        # CZ: Formátování výstupu s časovými značkami
+        # Format output with timestamps
         formatted_segments = []
         for segment in segments:
             start_time = segment.start
@@ -114,10 +114,10 @@ class LocalWhisperTranscriber:
         language: str = None
     ) -> List[Dict]:
         """
-        Získá detailní segmenty s metadaty.
+        Get detailed segments with metadata.
         
         Returns:
-            List slovníků s 'start', 'end', 'text'
+            List of dictionaries with 'start', 'end', 'text'
         """
         self._load_model()
         
@@ -141,14 +141,14 @@ class LocalWhisperTranscriber:
 
 def extract_audio_ffmpeg(video_path: str, output_path: str = None) -> Optional[str]:
     """
-    Extrahuje audio z videa pomocí FFmpeg.
+    Extract audio from video using FFmpeg.
     
     Args:
-        video_path: Cesta k video souboru
-        output_path: Cesta pro výstupní audio (optional)
+        video_path: Path to video file
+        output_path: Path for output audio (optional)
         
     Returns:
-        Cesta k extrahovanému audio souboru
+        Path to extracted audio file
     """
     if output_path is None:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
@@ -158,10 +158,10 @@ def extract_audio_ffmpeg(video_path: str, output_path: str = None) -> Optional[s
     print(f"Extracting audio from video...")
     
     try:
-        # CZ: Pokusíme se použít systémový FFmpeg
+        # Try to use system FFmpeg
         ffmpeg_cmd = "ffmpeg"
         
-        # CZ: Pokud není v PATH, zkusíme imageio_ffmpeg
+        # If not in PATH, try imageio_ffmpeg
         try:
             result = subprocess.run(
                 [ffmpeg_cmd, "-version"],
@@ -172,7 +172,7 @@ def extract_audio_ffmpeg(video_path: str, output_path: str = None) -> Optional[s
             from imageio_ffmpeg import get_ffmpeg_exe
             ffmpeg_cmd = get_ffmpeg_exe()
         
-        # CZ: Extrakce audia jako MP3, mono, 16kHz (optimální pro speech)
+        # Extract audio as MP3, mono, 16kHz (optimal for speech)
         cmd = [
             ffmpeg_cmd,
             '-i', video_path,
@@ -180,7 +180,7 @@ def extract_audio_ffmpeg(video_path: str, output_path: str = None) -> Optional[s
             '-acodec', 'libmp3lame',
             '-ar', '16000',  # CZ: 16kHz sample rate
             '-ac', '1',  # CZ: Mono
-            '-y',  # CZ: Přepsat výstup
+            '-y',  # Overwrite output
             output_path
         ]
         
@@ -209,20 +209,20 @@ def transcribe_video_local(
     compute_type: str = None
 ) -> Optional[str]:
     """
-    Kompletní pipeline: Extrakce audia + lokální Whisper transkripce.
+    Complete pipeline: Audio extraction + local Whisper transcription.
     
     Args:
-        video_path: Cesta k video souboru
-        model_size: Velikost Whisper modelu (default z .env)
-        compute_type: Typ výpočtu (default z .env)
+        video_path: Path to video file
+        model_size: Whisper model size (default from .env)
+        compute_type: Computation type (default from .env)
         
     Returns:
-        Formátovaný přepis s časovými značkami
+        Formatted transcript with timestamps
     """
     from dotenv import load_dotenv
     load_dotenv()
     
-    # CZ: Načtení konfigurace z .env nebo použití defaultů
+    # Load configuration from .env or use defaults
     model_size = model_size or os.getenv("WHISPER_MODEL", "large-v3")
     compute_type = compute_type or os.getenv("WHISPER_COMPUTE_TYPE", "float16")
     
@@ -231,14 +231,14 @@ def transcribe_video_local(
     print("=" * 60)
     print(f"Model: {model_size}, Compute: {compute_type}")
     
-    # CZ: Krok 1 - Extrakce audia
+    # Step 1 - Audio extraction
     audio_path = extract_audio_ffmpeg(video_path)
     
     if not audio_path:
         return None
     
     try:
-        # CZ: Krok 2 - Transkripce přes faster-whisper
+        # Step 2 - Transcription via faster-whisper
         transcriber = LocalWhisperTranscriber(
             model_size=model_size,
             compute_type=compute_type,
@@ -247,7 +247,7 @@ def transcribe_video_local(
         
         transcript = transcriber.transcribe(audio_path)
         
-        # CZ: Cleanup dočasného audio souboru
+        # Cleanup temporary audio file
         if os.path.exists(audio_path):
             os.remove(audio_path)
             print("✓ Temporary audio file cleaned up")
@@ -257,7 +257,7 @@ def transcribe_video_local(
     except Exception as e:
         print(f"❌ Error during transcription: {e}")
         
-        # CZ: Cleanup při chybě
+        # Cleanup on error
         if os.path.exists(audio_path):
             os.remove(audio_path)
         

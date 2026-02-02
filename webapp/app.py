@@ -222,7 +222,7 @@ def generate_sop():
             pdf_path = os.path.join(app.config['GENERATED_FOLDER'], pdf_filename)
             
             try:
-                # Import SOP generator (hybridní režim)
+                # Import SOP generator (hybrid mode)
                 from video_processor import VideoFrameExtractor
                 from sop_analyzer import analyze_frames
                 from pdf_generator import SOPPDFGenerator
@@ -232,7 +232,7 @@ def generate_sop():
                 
                 load_dotenv()
                 
-                # CZ: Zjistíme aktuální AI režim
+                # Determine current AI mode
                 ai_mode = os.getenv("AI_MODE", "API").upper()
                 print(f"\n🔧 Web App AI Mode: {ai_mode}")
                 
@@ -248,14 +248,14 @@ def generate_sop():
                 
                 frames = video_processor.extract_frames(video_path, output_dir=frames_dir)
                 
-                # CZ: Extract audio transcript (hybridní mód)
+                # Extract audio transcript (hybrid mode)
                 audio_transcript = ""
                 try:
                     audio_transcript = get_transcript(video_path, mode=ai_mode) or ""
                 except Exception as e:
                     print(f"⚠️ Audio transcription skipped: {e}")
                 
-                # CZ: Analyze and generate SOP (hybridní mód)
+                # Analyze and generate SOP (hybrid mode)
                 sop_data = analyze_frames(frames, context, audio_transcript, mode=ai_mode)
                 
                 # Generate PDF with company name

@@ -9,7 +9,8 @@
 **Type**: Full-Stack Web Application  
 **Duration**: December 2025  
 **Status**: Production Ready  
-**Repository**: https://github.com/Shezan57/Video-to-SOP-Generator
+**Repository**: https://github.com/DTOWCZ/Video-to-SOP-Generator
+**Original Repository**: https://github.com/Shezan57/Video-to-SOP-Generator
 
 ### Overview
 Developed an intelligent web application that automatically converts instructional videos into comprehensive Standard Operating Procedure (SOP) documents. The system leverages AI technologies including Whisper for audio transcription and Google Gemini for visual analysis, processing videos 15x faster than traditional methods.
@@ -47,8 +48,8 @@ Successfully created a production-ready full-stack application that transforms a
 - **Authentication**: Flask-Login with Werkzeug password hashing
 - **Video Processing**: FFmpeg 7.1 (native C library)
 - **AI Services**:
-  - Whisper Large V3 (Groq API) - Audio transcription
-  - Google Gemini 1.5 Flash - Visual analysis and SOP generation
+  - **LOCAL (Recommended)**: Ollama VLM + faster-whisper (RTX 6000)
+  - **API**: Google Gemini 1.5 Flash + Whisper Large V3 (Groq/Google API)
 - **PDF Generation**: ReportLab (Python library)
 
 #### Frontend
@@ -95,7 +96,7 @@ User Upload (Video + Context)
     - Save PDF to database
     - Provide download link
         ↓
-Total: ~2 minutes for 4-minute video
+Total: 20-60 seconds (Local GPU) or ~2 minutes (API)
 ```
 
 ---
@@ -106,6 +107,7 @@ Total: ~2 minutes for 4-minute video
 - **Intelligent Frame Extraction**: FFmpeg-based extraction with 15x performance improvement (120s → 8s)
 - **Timestamped Transcription**: Precise audio-to-visual mapping with second-level accuracy
 - **AI-Powered Analysis**: Context-aware instruction generation with safety considerations
+- **Hybrid AI Processing**: Automatic switching between high-performance local GPU processing (Ollama/RTX 6000) and scalable Cloud APIs
 - **Complete Procedures**: Automatic inclusion of disassembly, repair, reassembly, and verification steps
 
 ### 2. Web Application
@@ -320,15 +322,13 @@ print(f"⏱️  Phase completed in {minutes}:{seconds:02d}")
 
 ## 📊 Performance Metrics
 
-### Processing Time Breakdown (4-minute video)
-| Phase | Time | Percentage |
-|-------|------|------------|
-| Audio Transcription | 30s | 25% |
-| Frame Extraction | 8s | 7% |
-| AI Analysis | 75s | 62% |
-| PDF Generation | 5s | 4% |
-| Cleanup | 2s | 2% |
-| **Total** | **~2 min** | **100%** |
+| Phase | Time (Local GPU) | Time (Cloud API) |
+|-------|------------------|------------------|
+| Audio Transcription | ~5s | ~30s |
+| Frame Extraction | ~8s | ~8s |
+| AI Analysis | ~20-40s | ~75s |
+| PDF Generation | ~5s | ~5s |
+| **Total** | **~40-60s** | **~2 min** |
 
 ### Optimization Impact
 - **Frame Extraction**: 15x speedup (120s → 8s)
@@ -500,7 +500,7 @@ user = User.query.filter_by(username=username).first()
 ```bash
 SECRET_KEY=<32-character random string>
 GROQ_API_KEY=<Groq API key for Whisper>
-GEMINI_API_KEY=<Google Gemini API key>
+GOOGLE_API_KEY=<Google Gemini API key>
 ```
 
 **Deployment Command**:
@@ -696,7 +696,7 @@ Manual SOP creation is time-consuming (4-6 hours per document), error-prone, and
 ## 📞 Contact & Resources
 
 ### Project Repository
-**GitHub**: https://github.com/Shezan57/Video-to-SOP-Generator  
+**GitHub**: https://github.com/DTOWCZ/Video-to-SOP-Generator  
 **Branch**: main  
 **Status**: Production Ready  
 
@@ -714,7 +714,7 @@ Manual SOP creation is time-consuming (4-6 hours per document), error-prone, and
 
 ### API Keys Required (All Free)
 1. **Groq API**: https://console.groq.com/
-2. **Gemini API**: https://makersuite.google.com/app/apikey
+2. **Google API**: https://aistudio.google.com/app/apikey
 3. **Secret Key**: Generated via Python `secrets` module
 
 ---
@@ -739,10 +739,10 @@ The Video-to-SOP Generator transforms a manual 4-6 hour process into a 2-minute 
 
 ---
 
-**Prepared by**: Shezan  
-**Date**: December 4, 2025  
-**Project Version**: 2.1 (Web Application)  
-**Documentation Version**: 1.0
+**Prepared by**: Dominik  
+**Date**: February 2, 2026  
+**Project Version**: 2.5 (Hybrid GPU/Web Application)  
+**Documentation Version**: 2.0
 
 ---
 

@@ -1,158 +1,158 @@
-# 🚀 Implementace Lokálního GPU Módu (Ollama + faster-whisper)
+# 🚀 Local GPU Mode Implementation (Ollama + faster-whisper)
 
-**Datum zahájení:** 2026-02-02  
+**Start Date:** 2026-02-02  
 **Hardware:** RTX 6000 Blackwell PRO (96GB VRAM)  
-**Status:** ✅ Kompletní - Připraveno k testování
+**Status:** ✅ Complete - Ready for Testing
 
 ---
 
-## 📋 Checklist Implementace
+## 📋 Implementation Checklist
 
-### Fáze 1: Konfigurace
-- [x] 1.1 Aktualizovat `.env.example` s novými proměnnými ✅
-- [x] 1.2 Aktualizovat `requirements.txt` s novými závislostmi ✅
+### Phase 1: Configuration
+- [x] 1.1 Update `.env.example` with new variables ✅
+- [x] 1.2 Update `requirements.txt` with new dependencies ✅
 
-### Fáze 2: Implementace Whisper (Lokální transkripce)
-- [x] 2.1 Vytvořit `local_whisper.py` pro faster-whisper ✅
-- [x] 2.2 Upravit `whisper_transcription.py` pro hybridní režim ✅
+### Phase 2: Whisper Implementation (Local Transcription)
+- [x] 2.1 Create `local_whisper.py` for faster-whisper ✅
+- [x] 2.2 Modify `whisper_transcription.py` for hybrid mode ✅
 
-### Fáze 3: Implementace VLM (Ollama Vision)
-- [x] 3.1 Vytvořit `local_vlm.py` pro Ollama komunikaci ✅
-- [x] 3.2 Upravit `sop_analyzer.py` pro hybridní režim ✅
+### Phase 3: VLM Implementation (Ollama Vision)
+- [x] 3.1 Create `local_vlm.py` for Ollama communication ✅
+- [x] 3.2 Modify `sop_analyzer.py` for hybrid mode ✅
 
-### Fáze 4: Integrace
-- [x] 4.1 Upravit `main.py` pro automatickou detekci režimu ✅
-- [x] 4.2 Upravit `webapp/app.py` pro webové rozhraní ✅
+### Phase 4: Integration
+- [x] 4.1 Modify `main.py` for automatic mode detection ✅
+- [x] 4.2 Modify `webapp/app.py` for web interface ✅
 
-### Fáze 5: Testování (ČEKÁ NA UŽIVATELE)
-- [ ] 5.1 Nainstalovat Ollama a stáhnout model
-- [ ] 5.2 Nainstalovat Python závislosti
-- [ ] 5.3 Test lokálního Whisper
+### Phase 5: Testing (AWAITING USER)
+- [ ] 5.1 Install Ollama and download model
+- [ ] 5.2 Install Python dependencies
+- [ ] 5.3 Test local Whisper
 - [ ] 5.4 Test Ollama VLM
-- [ ] 5.5 End-to-end test celého pipeline
+- [ ] 5.5 End-to-end test of the entire pipeline
 
-### Fáze 6: Dokumentace
-- [x] 6.1 Tento dokument - LOCAL_GPU_IMPLEMENTATION.md ✅
-- [ ] 6.2 Aktualizovat hlavní README.md (po testování)
+### Phase 6: Documentation
+- [x] 6.1 This document - LOCAL_GPU_IMPLEMENTATION.md ✅
+- [ ] 6.2 Update main README.md (after testing)
 
 ---
 
-## 🔧 CO MUSÍŠ UDĚLAT TY (prerekvizity)
+## 🔧 WHAT YOU NEED TO DO (Prerequisites)
 
-### Krok 1: Nainstalovat Ollama
+### Step 1: Install Ollama
 ```powershell
-# Stáhni instalátor z:
+# Download installer from:
 # https://ollama.com/download/windows
 
-# Po instalaci ověř:
+# Verify after installation:
 ollama --version
 ```
 
-### Krok 2: Stáhnout Vision model
+### Step 2: Download Vision model
 ```powershell
-# Pro tvých 96GB VRAM - nejlepší kvalita (90B parametrů):
+# For your 96GB VRAM - best quality (90B parameters):
 ollama pull llama3.2-vision:90b
 
-# Alternativy (menší, rychlejší):
+# Alternatives (smaller, faster):
 # ollama pull qwen2.5-vl:72b
 # ollama pull llava:34b
 
-# Ověření, že model je stažený:
+# Verify model is downloaded:
 ollama list
 ```
 
-### Krok 3: Spustit Ollama server
+### Step 3: Start Ollama server
 ```powershell
-# Ollama musí běžet na pozadí:
+# Ollama must run in the background:
 ollama serve
 
-# Nebo spusť Ollama přes GUI (po instalaci běží automaticky)
+# Or start Ollama via GUI (runs automatically after installation)
 ```
 
-### Krok 4: Nainstalovat Python závislosti
+### Step 4: Install Python dependencies
 ```powershell
-# Aktivuj venv:
+# Activate venv:
 .\venv\Scripts\activate
 
-# Nainstaluj nové závislosti:
+# Install new dependencies:
 pip install -r requirements.txt
 ```
 
-### Krok 5: Vytvořit .env soubor
+### Step 5: Create .env file
 ```powershell
-# Zkopíruj šablonu:
+# Copy template:
 copy .env.example .env
 
-# Uprav .env soubor - nastav tyto hodnoty:
+# Edit .env file - set these values:
 ```
 
 ```ini
-# Hlavní přepínač - LOCAL = GPU, API = Cloud
+# Main switch - LOCAL = GPU, API = Cloud
 AI_MODE=LOCAL
 
-# Ollama konfigurace
+# Ollama configuration
 OLLAMA_HOST=http://localhost:11434
 OLLAMA_MODEL=llama3.2-vision:90b
 
-# Whisper konfigurace
+# Whisper configuration
 WHISPER_MODEL=large-v3
 WHISPER_COMPUTE_TYPE=float16
 ```
 
-### Krok 6: Otestovat
+### Step 6: Test
 ```powershell
-# Test Ollama připojení:
+# Test Ollama connection:
 python local_vlm.py
 
-# Test celého pipeline:
-python main.py "cesta/k/testovaci.mp4" -o test_output.pdf
+# Test entire pipeline:
+python main.py "path/to/test_video.mp4" -o test_output.pdf
 ```
 
 ---
 
 ## 📊 Progress Log
 
-| Čas | Akce | Status |
+| Time | Action | Status |
 |-----|------|--------|
-| 12:49 | Vytvořen tracking dokument | ✅ |
-| 12:50 | Aktualizován .env.example | ✅ |
-| 12:50 | Aktualizován requirements.txt | ✅ |
-| 12:51 | Vytvořen local_whisper.py | ✅ |
-| 12:52 | Vytvořen local_vlm.py | ✅ |
-| 12:53 | Upraven whisper_transcription.py | ✅ |
-| 12:54 | Upraven sop_analyzer.py | ✅ |
-| 12:55 | Upraven main.py | ✅ |
-| 12:56 | Upraven webapp/app.py | ✅ |
-| **---** | **IMPLEMENTACE KOMPLETNÍ** | **✅** |
+| 12:49 | Created tracking document | ✅ |
+| 12:50 | Updated .env.example | ✅ |
+| 12:50 | Updated requirements.txt | ✅ |
+| 12:51 | Created local_whisper.py | ✅ |
+| 12:52 | Created local_vlm.py | ✅ |
+| 12:53 | Modified whisper_transcription.py | ✅ |
+| 12:54 | Modified sop_analyzer.py | ✅ |
+| 12:55 | Modified main.py | ✅ |
+| 12:56 | Modified webapp/app.py | ✅ |
+| **---** | **IMPLEMENTATION COMPLETE** | **✅** |
 
 ---
 
-## 📁 Nové/Upravené soubory
+## 📁 New/Modified Files
 
-| Soubor | Typ | Popis | Status |
+| File | Type | Description | Status |
 |--------|-----|-------|--------|
-| `local_whisper.py` | **NEW** | Lokální Whisper přes faster-whisper | ✅ |
-| `local_vlm.py` | **NEW** | Ollama VLM klient | ✅ |
-| `sop_analyzer.py` | MODIFIED | Hybridní režim (API/Local) | ✅ |
-| `whisper_transcription.py` | MODIFIED | Hybridní režim (API/Local) | ✅ |
-| `main.py` | MODIFIED | Detekce režimu + prerekvizity | ✅ |
-| `.env.example` | MODIFIED | Nové proměnné pro LOCAL mód | ✅ |
+| `local_whisper.py` | **NEW** | Local Whisper via faster-whisper | ✅ |
+| `local_vlm.py` | **NEW** | Ollama VLM client | ✅ |
+| `sop_analyzer.py` | MODIFIED | Hybrid mode (API/Local) | ✅ |
+| `whisper_transcription.py` | MODIFIED | Hybrid mode (API/Local) | ✅ |
+| `main.py` | MODIFIED | Mode detection + prerequisites | ✅ |
+| `.env.example` | MODIFIED | New variables for LOCAL mode | ✅ |
 | `requirements.txt` | MODIFIED | faster-whisper, httpx | ✅ |
-| `webapp/app.py` | MODIFIED | Webové rozhraní s hybridním módem | ✅ |
+| `webapp/app.py` | MODIFIED | Web interface with hybrid mode | ✅ |
 
 ---
 
-## 🎯 Cílová architektura
+## 🎯 Target Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        main.py                               │
-│              (automatická detekce AI_MODE)                   │
+│              (automatic AI_MODE detection)                   │
 └─────────────────────┬───────────────────────────────────────┘
                       │
                       ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              AI_MODE = ? (z .env)                            │
+│              AI_MODE = ? (from .env)                         │
 └──────────┬──────────────────────────────┬───────────────────┘
            │                              │
            ▼                              ▼
@@ -163,44 +163,44 @@ python main.py "cesta/k/testovaci.mp4" -o test_output.pdf
 │ • Groq Whisper       │      │ • faster-whisper     │
 │ • Cloud processing   │      │ • RTX 6000 GPU       │
 │ • Pay per use        │      │ • Zero cost          │
-│ • Vyžaduje API klíče │      │ • Vyžaduje Ollama    │
+│ • Requires API keys  │      │ • Requires Ollama    │
 └──────────────────────┘      └──────────────────────┘
 ```
 
 ---
 
-## 🚀 Jak spustit
+## 🚀 How to Run
 
-### Lokální mód (GPU) - DOPORUČENO PRO TEBE:
+### Local Mode (GPU) - RECOMMENDED FOR YOU:
 ```powershell
-# 1. Ujisti se, že Ollama běží:
+# 1. Ensure Ollama is running:
 ollama serve
 
-# 2. Měj v .env nastaveno AI_MODE=LOCAL
+# 2. Set AI_MODE=LOCAL in .env
 
-# 3. CLI verze:
-python main.py "cesta/k/videu.mp4" -o vystup.pdf
+# 3. CLI version:
+python main.py "path/to/video.mp4" -o output.pdf
 
-# 4. Nebo web verze:
+# 4. Or Web version:
 cd webapp
 python app.py
-# Otevři http://localhost:5000
+# Open http://localhost:5000
 ```
 
-### API mód (Cloud):
+### API Mode (Cloud):
 ```powershell
-# 1. Nastav v .env:
+# 1. Set in .env:
 #    AI_MODE=API
-#    GOOGLE_API_KEY=tvuj_klic
-#    GROQ_API_KEY=tvuj_klic
+#    GOOGLE_API_KEY=your_key
+#    GROQ_API_KEY=your_key
 
-# 2. Spusť:
-python main.py "cesta/k/videu.mp4" -o vystup.pdf
+# 2. Run:
+python main.py "path/to/video.mp4" -o output.pdf
 ```
 
 ---
 
-## ⚙️ Kompletní .env konfigurace
+## ⚙️ Complete .env Configuration
 
 ```ini
 # ============================================================
@@ -217,8 +217,8 @@ AI_MODE=LOCAL
 OLLAMA_HOST=http://localhost:11434
 
 # Ollama Vision model
-# Pro 96GB VRAM: llama3.2-vision:90b (nejlepší)
-# Alternativy: qwen2.5-vl:72b, llava:34b
+# For 96GB VRAM: llama3.2-vision:90b (best)
+# Alternatives: qwen2.5-vl:72b, llava:34b
 OLLAMA_MODEL=llama3.2-vision:90b
 
 # Local Whisper model size
@@ -251,28 +251,28 @@ SECRET_KEY=your_secret_key_here
 
 ### "Ollama not responding"
 ```powershell
-# Spusť Ollama server:
+# Start Ollama server:
 ollama serve
 
-# Nebo zkontroluj, zda běží:
+# Or check if it's running:
 curl http://localhost:11434/api/tags
 ```
 
 ### "Model not found"
 ```powershell
-# Stáhni model:
+# Download model:
 ollama pull llama3.2-vision:90b
 
-# Ověř dostupné modely:
+# Verify available models:
 ollama list
 ```
 
 ### "CUDA not available"
 ```powershell
-# Ověř CUDA instalaci:
+# Verify CUDA installation:
 python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 
-# Pokud vrátí False, nainstaluj PyTorch s CUDA:
+# If it returns False, install PyTorch with CUDA:
 pip install torch --index-url https://download.pytorch.org/whl/cu121
 ```
 
@@ -288,25 +288,25 @@ pip install httpx
 
 ---
 
-## 📈 Očekávaný výkon
+## 📈 Expected Performance
 
-| Operace | API Mode | LOCAL Mode (96GB VRAM) |
+| Operation | API Mode | LOCAL Mode (96GB VRAM) |
 |---------|----------|------------------------|
-| Whisper transkripce (4min video) | ~30s | **~5-8s** |
-| VLM analýza (20 snímků) | ~75s | **~20-40s** |
-| PDF generace | ~5s | ~5s |
-| **Celkem** | ~2 min | **~30-60s** |
-| **Náklady** | $0.01-0.05/video | **$0** |
+| Whisper Transcription (4min video) | ~30s | **~5-8s** |
+| VLM Analysis (20 frames) | ~75s | **~20-40s** |
+| PDF Generation | ~5s | ~5s |
+| **Total** | ~2 min | **~30-60s** |
+| **Cost** | $0.01-0.05/video | **$0** |
 
 ---
 
-## ✅ HOTOVO!
+## ✅ DONE!
 
-Implementace je kompletní. Nyní proveď kroky v sekci **"CO MUSÍŠ UDĚLAT TY"** výše.
+Implementation is complete. Now follow the steps in the **"WHAT YOU NEED TO DO"** section above.
 
-Po instalaci Ollama a stažení modelu můžeš otestovat příkazem:
+After installing Ollama and downloading the model, you can test with:
 ```powershell
-python main.py "tvoje_video.mp4" -o test.pdf
+python main.py "your_video.mp4" -o test.pdf
 ```
 
-Pokud narazíš na problémy, podívej se do sekce Troubleshooting nebo se zeptej.
+If you encounter issues, refer to the Troubleshooting section or ask.

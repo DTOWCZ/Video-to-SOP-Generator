@@ -14,23 +14,23 @@ from pathlib import Path
 
 class OllamaVLMAnalyzer:
     """
-    Lokální VLM analýza přes Ollama.
-    Využívá GPU pro zpracování vision modelů (llama3.2-vision, qwen2.5-vl, atd.)
+    Local VLM analysis via Ollama.
+    Uses GPU for processing vision models (llama3.2-vision, qwen2.5-vl, etc.)
     """
     
     def __init__(
         self,
         host: str = None,
         model: str = None,
-        timeout: float = 300.0  # CZ: 5 minut timeout pro velké modely
+        timeout: float = 300.0  # 5 minutes timeout for large models
     ):
         """
-        Inicializace Ollama VLM klienta.
+        Initialization of Ollama VLM client.
         
         Args:
-            host: Ollama server URL (default z .env nebo localhost:11434)
-            model: Název modelu (default z .env nebo llama3.2-vision:90b)
-            timeout: Timeout pro API volání v sekundách
+            host: Ollama server URL (default from .env or localhost:11434)
+            model: Model name (default from .env or llama3.2-vision:90b)
+            timeout: Timeout for API calls in seconds
         """
         from dotenv import load_dotenv
         load_dotenv()
@@ -39,27 +39,27 @@ class OllamaVLMAnalyzer:
         self.model = model or os.getenv("OLLAMA_MODEL", "llama3.2-vision:90b")
         self.timeout = timeout
         
-        # CZ: Odstraníme trailing slash pokud existuje
+        # Remove trailing slash if it exists
         self.host = self.host.rstrip("/")
         
         print(f"Ollama VLM configured: {self.model} @ {self.host}")
     
     def check_connection(self) -> bool:
-        """Ověří, že Ollama server běží a model je dostupný."""
+        """Verify that the Ollama server is running and the model is available."""
         try:
             with httpx.Client(timeout=10.0) as client:
-                # CZ: Kontrola, zda server odpovídá
+                # Check if the server responds
                 response = client.get(f"{self.host}/api/tags")
                 
                 if response.status_code != 200:
                     print(f"⚠️ Ollama server not responding properly")
                     return False
                 
-                # CZ: Kontrola, zda je model stažený
+                # Check if the model is downloaded
                 data = response.json()
                 models = [m["name"] for m in data.get("models", [])]
                 
-                # CZ: Hledáme přesnou shodu nebo prefix
+                # Search for exact match or prefix
                 model_found = any(
                     self.model == m or self.model.split(":")[0] in m
                     for m in models
@@ -88,29 +88,29 @@ class OllamaVLMAnalyzer:
         audio_transcript: str = ""
     ) -> Dict:
         """
-        Analyzuje video snímky a generuje SOP strukturu.
+        Analyzes video frames and generates SOP structure.
         
         Args:
-            frames: List slovníků s 'image_data' (base64) a 'timestamp'
-            context: Kontext úlohy (např. "Výměna pneumatiky")
-            audio_transcript: Časovaný přepis audia
+            frames: List of dictionaries with 'image_data' (base64) and 'timestamp'
+            context: Task context (e.g., "Tire replacement")
+            audio_transcript: Timestamped audio transcript
             
         Returns:
-            Slovník s SOP strukturou (title, description, safety_notes, steps)
+            Dictionary with SOP structure (title, description, safety_notes, steps)
         """
-        # CZ: Ověření připojení před analýzou
+        # Verify connection before analysis
         if not self.check_connection():
             raise ConnectionError("Ollama server is not available")
         
         print(f"Analyzing {len(frames)} frames with {self.model}...")
         
-        # CZ: Vytvoření promptu
+        # Create prompt
         prompt = self._create_prompt(frames, context, audio_transcript)
         
-        # CZ: Příprava obrázků pro Ollama API
+        # Prepare images for Ollama API
         images_base64 = [frame["image_data"] for frame in frames]
         
-        # CZ: Volání Ollama API
+        # Call Ollama API
         try:
             with httpx.Client(timeout=self.timeout) as client:
                 response = client.post(
@@ -123,7 +123,7 @@ class OllamaVLMAnalyzer:
                         "options": {
                             "temperature": 0.4,
                             "top_p": 0.95,
-                            "num_predict": 8192,  # CZ: Max tokenů ve výstupu
+                            "num_predict": 8192,  # Max tokens in output
                         }
                     }
                 )
@@ -136,7 +136,7 @@ class OllamaVLMAnalyzer:
                 
                 print("✓ Received response from Ollama")
                 
-                # CZ: Parsování JSON odpovědi
+                # Parse JSON response
                 sop_data = self._parse_response(response_text)
                 
                 return sop_data
@@ -156,16 +156,16 @@ class OllamaVLMAnalyzer:
         context: str,
         audio_transcript: str = ""
     ) -> str:
-        """Vytvoří systémový prompt pro VLM analýzu."""
+        """Creates a system prompt for VLM analysis."""
         
-        # CZ: Informace o časových značkách snímků
+        # Frame timestamp information
         timestamps = [
             f"Frame {i+1} at {frame['timestamp']:.2f}s"
             for i, frame in enumerate(frames)
         ]
         timestamp_info = "\n".join(timestamps)
         
-        # CZ: Sekce s audio přepisem pokud je k dispozici
+        # Audio transcript section if available
         audio_section = ""
         if audio_transcript:
             audio_section = f"""
@@ -230,9 +230,9 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.""
         return prompt
     
     def _parse_response(self, response_text: str) -> Dict:
-        """Parsuje LLM odpověď do strukturovaného JSON."""
+        """Parses LLM response into structured JSON."""
         
-        # CZ: Odstranění markdown bloků pokud jsou přítomny
+        # Remove markdown blocks if present
         text = response_text.strip()
         if text.startswith("```json"):
             text = text[7:]
@@ -246,11 +246,11 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.""
         try:
             data = json.loads(text)
             
-            # CZ: Validace struktury
+            # Validate structure
             if "title" not in data or "steps" not in data:
                 raise ValueError("Response missing required fields: title or steps")
             
-            # CZ: Kontrola požadovaných polí v krocích
+            # Check required fields in steps
             for step in data["steps"]:
                 required_fields = ["step_number", "instruction", "timestamp_seconds"]
                 for field in required_fields:
@@ -271,15 +271,15 @@ def analyze_video_frames_local(
     audio_transcript: str = ""
 ) -> Dict:
     """
-    Wrapper funkce pro snadné použití lokální VLM analýzy.
+    Wrapper function for easy local VLM analysis.
     
     Args:
-        frames: List snímků s 'image_data' a 'timestamp'
-        context: Kontext úlohy
-        audio_transcript: Přepis audia
+        frames: List of frames with 'image_data' and 'timestamp'
+        context: Task context
+        audio_transcript: Audio transcript
         
     Returns:
-        SOP struktura
+        SOP structure
     """
     analyzer = OllamaVLMAnalyzer()
     return analyzer.analyze_frames(frames, context, audio_transcript)

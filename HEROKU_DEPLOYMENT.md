@@ -440,7 +440,7 @@ https://devcenter.heroku.com/
 https://education.github.com/pack
 
 **Project Issues:**
-https://github.com/Shezan57/Video-to-SOP-Generator/issues
+https://github.com/DTOWCZ/Video-to-SOP-Generator/issues
 
 ---
 

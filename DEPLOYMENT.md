@@ -170,7 +170,7 @@ heroku config:set WEB_CONCURRENCY=2
 4. **Clone Repository**:
    ```bash
    cd /home/ubuntu
-   git clone https://github.com/Shezan57/Video-to-SOP-Generator.git
+   git clone https://github.com/DTOWCZ/Video-to-SOP-Generator.git
    cd Video-to-SOP-Generator
    ```
 

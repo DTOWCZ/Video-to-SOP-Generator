@@ -449,7 +449,7 @@ Successfully transformed the CLI Video-to-SOP Generator into a full-stack web ap
 
 ---
 
-**Repository**: https://github.com/Shezan57/Video-to-SOP-Generator  
+**Repository**: https://github.com/DTOWCZ/Video-to-SOP-Generator  
 **Version**: 2.1 (Web Interface)  
 **Date**: January 2025  
 **Author**: Shezan  

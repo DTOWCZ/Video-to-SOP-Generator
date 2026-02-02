@@ -202,7 +202,7 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.
 
 
 # ============================================================
-# HYBRID MODE: Automatický výběr mezi API a LOCAL
+# HYBRID MODE: Automatic selection between API and LOCAL
 # ============================================================
 
 def analyze_frames(
@@ -212,27 +212,27 @@ def analyze_frames(
     mode: str = None
 ) -> Dict:
     """
-    Hybridní funkce pro VLM analýzu - automaticky vybere backend.
+    Hybrid function for VLM analysis - automatically selects backend.
     
     Args:
-        frames: List snímků s 'image_data' a 'timestamp'
-        context: Kontext úlohy
-        audio_transcript: Přepis audia
-        mode: "API", "LOCAL" nebo None (auto z .env)
+        frames: List of frames with 'image_data' and 'timestamp'
+        context: Task context
+        audio_transcript: Audio transcript
+        mode: "API", "LOCAL" or None (auto from .env)
         
     Returns:
-        SOP struktura (dict)
+        SOP structure (dict)
     """
     load_dotenv()
     
-    # CZ: Zjistíme režim z .env pokud není specifikován
+    # Determine mode from .env if not specified
     if mode is None:
         mode = os.getenv("AI_MODE", "API").upper()
     
     print(f"\n🤖 Vision Analysis Mode: {mode}")
     
     if mode == "LOCAL":
-        # CZ: Lokální GPU mód přes Ollama
+        # Local GPU mode via Ollama
         try:
             from local_vlm import OllamaVLMAnalyzer
             
@@ -248,7 +248,7 @@ def analyze_frames(
             mode = "API"
     
     if mode == "API":
-        # CZ: Cloud mód přes Gemini API
+        # Cloud mode via Gemini API
         api_key = os.getenv("GOOGLE_API_KEY")
         
         if not api_key:
@@ -264,18 +264,18 @@ def analyze_frames(
 
 
 # ============================================================
-# Zpětná kompatibilita - wrapper pro staré API
+# Backwards compatibility - wrapper for old API
 # ============================================================
 
 def get_analyzer(mode: str = None) -> "SOPAnalyzer":
     """
-    Factory funkce pro získání správného analyzeru.
+    Factory function to get the correct analyzer.
     
     Args:
-        mode: "API", "LOCAL" nebo None (auto z .env)
+        mode: "API", "LOCAL" or None (auto from .env)
         
     Returns:
-        Instance analyzeru (SOPAnalyzer nebo OllamaVLMAnalyzer)
+        Analyzer instance (SOPAnalyzer or OllamaVLMAnalyzer)
     """
     load_dotenv()
     

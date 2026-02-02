@@ -4,8 +4,8 @@
 
 ### Step 1: Activate Virtual Environment
 ```powershell
-cd d:\SHEZAN\AI\Video-to-SOP-Generator
-.\myvenv\Scripts\Activate.ps1
+cd d:\AI\GitHub\Video-to-SOP-Generator
+.\venv\Scripts\Activate.ps1
 ```
 
 ### Step 2: Verify Installation
@@ -18,11 +18,12 @@ You should see:
 - Flask-SQLAlchemy 3.1.1
 
 ### Step 3: Set Environment Variables
-Create `.env` file in project root:
+Create `.env` file in project root (see `.env.example` for all options):
 ```
+AI_MODE=LOCAL  # Set to API if using cloud keys
 SECRET_KEY=your-secret-key-here-generate-with-python-secrets
-GROQ_API_KEY=your-groq-api-key
-GEMINI_API_KEY=your-gemini-api-key
+GOOGLE_API_KEY=your-google-api-key (optional if LOCAL)
+GROQ_API_KEY=your-groq-api-key (optional if LOCAL)
 ```
 
 **Generate SECRET_KEY**:
@@ -175,7 +176,7 @@ Video-to-SOP-Generator/
 
 ### Start Server
 ```powershell
-.\myvenv\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 cd webapp
 python app.py
 ```
@@ -231,7 +232,7 @@ app.run(debug=True, host='0.0.0.0', port=5001)
 **Solution**: Create `.env` file with:
 ```
 GROQ_API_KEY=your-key-here
-GEMINI_API_KEY=your-key-here
+GOOGLE_API_KEY=your-key-here
 ```
 
 ### "Database locked"
@@ -259,7 +260,7 @@ heroku buildpacks:add --index 2 heroku/python
 # 4. Set environment variables
 heroku config:set SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
 heroku config:set GROQ_API_KEY=your_key
-heroku config:set GEMINI_API_KEY=your_key
+heroku config:set GOOGLE_API_KEY=your_key
 
 # 5. Deploy
 git push heroku main
@@ -311,4 +312,4 @@ Your web application is now running at: **http://localhost:5000**
 - Create GitHub issue for bugs
 - Read `WEB_APP_SUMMARY.md` for technical details
 
-**Repository**: https://github.com/Shezan57/Video-to-SOP-Generator
+**Repository**: https://github.com/DTOWCZ/Video-to-SOP-Generator

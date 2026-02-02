@@ -198,31 +198,31 @@ if __name__ == "__main__":
 
 
 # ============================================================
-# HYBRID MODE: Automatický výběr mezi API a LOCAL
+# HYBRID MODE: Automatic selection between API and LOCAL
 # ============================================================
 
 def get_transcript(video_path: str, mode: str = None) -> Optional[str]:
     """
-    Hybridní funkce pro transkripci - automaticky vybere backend.
+    Hybrid function for transcription - automatically selects backend.
     
     Args:
-        video_path: Cesta k video souboru
-        mode: "API", "LOCAL" nebo None (auto z .env)
+        video_path: Path to video file
+        mode: "API", "LOCAL" or None (auto from .env)
         
     Returns:
-        Formátovaný přepis s časovými značkami
+        Formatted transcript with timestamps
     """
     from dotenv import load_dotenv
     load_dotenv()
     
-    # CZ: Zjistíme režim z .env pokud není specifikován
+    # Determine mode from .env if not specified
     if mode is None:
         mode = os.getenv("AI_MODE", "API").upper()
     
     print(f"\n🎙️ Transcription Mode: {mode}")
     
     if mode == "LOCAL":
-        # CZ: Lokální GPU mód přes faster-whisper
+        # Local GPU mode via faster-whisper
         try:
             from local_whisper import transcribe_video_local
             return transcribe_video_local(video_path)
@@ -231,7 +231,7 @@ def get_transcript(video_path: str, mode: str = None) -> Optional[str]:
             mode = "API"
     
     if mode == "API":
-        # CZ: Cloud mód přes Groq API
+        # Cloud mode via Groq API
         groq_api_key = os.getenv("GROQ_API_KEY")
         
         if not groq_api_key:
