@@ -14,13 +14,13 @@ Convert training videos into professional Standard Operating Procedure (SOP) man
 
 ## Overview
 
-This tool uses multimodal AI (Gemini 1.5 Flash) and Whisper to watch industrial/manufacturing training videos and generate step-by-step instruction manuals with screenshots.
+This tool uses multimodal AI (Gemini 2.5 Pro) and Whisper to watch industrial/manufacturing training videos and generate step-by-step instruction manuals with screenshots.
 
 ## Features
 
 - 🎥 **FFmpeg Video Processing**: Extracts key frames 15x faster than traditional methods
 - 🎙️ **Hybrid Audio Transcription**: Support for **faster-whisper (Local GPU)** and **Groq Cloud API**
-- 🤖 **Hybrid Vision Analysis**: Support for **Ollama VLM (Local GPU)** and **Gemini 1.5 Pro (Cloud)**
+- 🤖 **Hybrid Vision Analysis**: Support for **Ollama VLM (Local GPU)** and **Gemini 2.5 Pro (Cloud)**
 - 📄 **Professional PDFs**: Creates polished SOP manuals with images and clear instructions
 - ⚡ **Turbo Performance**: 4-min video → SOP in **30-60s** (Local GPU) or ~2 mins (API)
 - 🔒 **Safety Notes**: Automatically identifies safety considerations
@@ -143,18 +143,7 @@ Video Input → Frame Extraction → AI Analysis → PDF Generation
 - Embeds images at relevant steps
 - Includes safety notes and table of contents
 
-## Project Structure
 
-```
-Video-to-SOP Generator/
-├── main.py                 # Main application
-├── video_processor.py      # Frame extraction
-├── sop_analyzer.py        # AI analysis
-├── pdf_generator.py       # PDF creation
-├── requirements.txt       # Dependencies
-├── .env.example          # API key template
-└── README.md             # This file
-```
 
 ## Example Output
 
