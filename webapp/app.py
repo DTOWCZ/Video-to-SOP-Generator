@@ -222,21 +222,24 @@ def generate_sop():
             pdf_path = os.path.join(app.config['GENERATED_FOLDER'], pdf_filename)
             
             try:
-                # Import SOP generator
+                # Import SOP generator (hybridní režim)
                 from video_processor import VideoFrameExtractor
-                from sop_analyzer import SOPAnalyzer
+                from sop_analyzer import analyze_frames
                 from pdf_generator import SOPPDFGenerator
-                from whisper_transcription import transcribe_video_audio
+                from whisper_transcription import get_transcript
                 import time
                 from dotenv import load_dotenv
                 
                 load_dotenv()
                 
+                # CZ: Zjistíme aktuální AI režim
+                ai_mode = os.getenv("AI_MODE", "API").upper()
+                print(f"\n🔧 Web App AI Mode: {ai_mode}")
+                
                 # Process video
                 start_time = time.time()
                 
                 video_processor = VideoFrameExtractor(interval_seconds=2)
-                analyzer = SOPAnalyzer()
                 pdf_generator = SOPPDFGenerator()
                 
                 # Extract frames
@@ -245,14 +248,15 @@ def generate_sop():
                 
                 frames = video_processor.extract_frames(video_path, output_dir=frames_dir)
                 
-                # Extract audio transcript
+                # CZ: Extract audio transcript (hybridní mód)
                 audio_transcript = ""
-                groq_api_key = os.getenv("GROQ_API_KEY")
-                if groq_api_key:
-                    audio_transcript = transcribe_video_audio(video_path, groq_api_key) or ""
+                try:
+                    audio_transcript = get_transcript(video_path, mode=ai_mode) or ""
+                except Exception as e:
+                    print(f"⚠️ Audio transcription skipped: {e}")
                 
-                # Analyze and generate SOP
-                sop_data = analyzer.analyze_video_frames(frames, context, audio_transcript)
+                # CZ: Analyze and generate SOP (hybridní mód)
+                sop_data = analyze_frames(frames, context, audio_transcript, mode=ai_mode)
                 
                 # Generate PDF with company name
                 pdf_generator.generate_sop_pdf(
@@ -284,7 +288,7 @@ def generate_sop():
                 db.session.add(new_sop)
                 db.session.commit()
                 
-                flash(f'SOP generated successfully in {int(processing_time)} seconds!', 'success')
+                flash(f'SOP generated successfully in {int(processing_time)} seconds! (Mode: {ai_mode})', 'success')
                 return redirect(url_for('view_sop', sop_id=new_sop.id))
                 
             except Exception as e:

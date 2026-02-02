@@ -195,3 +195,52 @@ if __name__ == "__main__":
         print(transcript)
         print("\n" + "=" * 60)
         print(f"Total characters: {len(transcript)}")
+
+
+# ============================================================
+# HYBRID MODE: Automatický výběr mezi API a LOCAL
+# ============================================================
+
+def get_transcript(video_path: str, mode: str = None) -> Optional[str]:
+    """
+    Hybridní funkce pro transkripci - automaticky vybere backend.
+    
+    Args:
+        video_path: Cesta k video souboru
+        mode: "API", "LOCAL" nebo None (auto z .env)
+        
+    Returns:
+        Formátovaný přepis s časovými značkami
+    """
+    from dotenv import load_dotenv
+    load_dotenv()
+    
+    # CZ: Zjistíme režim z .env pokud není specifikován
+    if mode is None:
+        mode = os.getenv("AI_MODE", "API").upper()
+    
+    print(f"\n🎙️ Transcription Mode: {mode}")
+    
+    if mode == "LOCAL":
+        # CZ: Lokální GPU mód přes faster-whisper
+        try:
+            from local_whisper import transcribe_video_local
+            return transcribe_video_local(video_path)
+        except ImportError:
+            print("⚠️ Local whisper not available, falling back to API")
+            mode = "API"
+    
+    if mode == "API":
+        # CZ: Cloud mód přes Groq API
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        
+        if not groq_api_key:
+            raise ValueError(
+                "GROQ_API_KEY not found in .env. "
+                "Either set API key or switch to AI_MODE=LOCAL"
+            )
+        
+        return transcribe_video_audio(video_path, groq_api_key)
+    
+    raise ValueError(f"Unknown AI_MODE: {mode}. Use 'API' or 'LOCAL'")
+

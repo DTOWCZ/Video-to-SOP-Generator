@@ -199,3 +199,91 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.
             print(f"Failed to parse JSON response: {e}")
             print(f"Response text: {text[:500]}...")
             raise ValueError("LLM did not return valid JSON")
+
+
+# ============================================================
+# HYBRID MODE: Automatický výběr mezi API a LOCAL
+# ============================================================
+
+def analyze_frames(
+    frames: List[Dict],
+    context: str = "",
+    audio_transcript: str = "",
+    mode: str = None
+) -> Dict:
+    """
+    Hybridní funkce pro VLM analýzu - automaticky vybere backend.
+    
+    Args:
+        frames: List snímků s 'image_data' a 'timestamp'
+        context: Kontext úlohy
+        audio_transcript: Přepis audia
+        mode: "API", "LOCAL" nebo None (auto z .env)
+        
+    Returns:
+        SOP struktura (dict)
+    """
+    load_dotenv()
+    
+    # CZ: Zjistíme režim z .env pokud není specifikován
+    if mode is None:
+        mode = os.getenv("AI_MODE", "API").upper()
+    
+    print(f"\n🤖 Vision Analysis Mode: {mode}")
+    
+    if mode == "LOCAL":
+        # CZ: Lokální GPU mód přes Ollama
+        try:
+            from local_vlm import OllamaVLMAnalyzer
+            
+            analyzer = OllamaVLMAnalyzer()
+            return analyzer.analyze_frames(frames, context, audio_transcript)
+            
+        except ImportError:
+            print("⚠️ Local VLM not available, falling back to API")
+            mode = "API"
+        except ConnectionError as e:
+            print(f"⚠️ Ollama not available: {e}")
+            print("⚠️ Falling back to API mode")
+            mode = "API"
+    
+    if mode == "API":
+        # CZ: Cloud mód přes Gemini API
+        api_key = os.getenv("GOOGLE_API_KEY")
+        
+        if not api_key:
+            raise ValueError(
+                "GOOGLE_API_KEY not found in .env. "
+                "Either set API key or switch to AI_MODE=LOCAL"
+            )
+        
+        analyzer = SOPAnalyzer(api_key=api_key)
+        return analyzer.analyze_video_frames(frames, context, audio_transcript)
+    
+    raise ValueError(f"Unknown AI_MODE: {mode}. Use 'API' or 'LOCAL'")
+
+
+# ============================================================
+# Zpětná kompatibilita - wrapper pro staré API
+# ============================================================
+
+def get_analyzer(mode: str = None) -> "SOPAnalyzer":
+    """
+    Factory funkce pro získání správného analyzeru.
+    
+    Args:
+        mode: "API", "LOCAL" nebo None (auto z .env)
+        
+    Returns:
+        Instance analyzeru (SOPAnalyzer nebo OllamaVLMAnalyzer)
+    """
+    load_dotenv()
+    
+    if mode is None:
+        mode = os.getenv("AI_MODE", "API").upper()
+    
+    if mode == "LOCAL":
+        from local_vlm import OllamaVLMAnalyzer
+        return OllamaVLMAnalyzer()
+    else:
+        return SOPAnalyzer()

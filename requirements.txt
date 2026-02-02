@@ -35,3 +35,16 @@ python-dotenv==1.0.0
 
 # For production
 gunicorn==21.2.0
+
+# ============================================================
+# LOCAL GPU MODE (Ollama + faster-whisper)
+# ============================================================
+
+# Local Whisper transcription (GPU accelerated)
+faster-whisper>=1.0.0
+
+# HTTP client for Ollama API
+httpx>=0.27.0
+
+# GPU utilities (optional, for monitoring)
+nvidia-ml-py>=12.0.0

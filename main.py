@@ -1,6 +1,12 @@
 """
 Video-to-SOP Generator
 Main application file that orchestrates the entire pipeline
+
+Supports two modes:
+- API: Uses Gemini + Groq cloud APIs (default)
+- LOCAL: Uses Ollama + faster-whisper on local GPU
+
+Set AI_MODE=LOCAL in .env to use local GPU processing.
 """
 
 import os
@@ -10,7 +16,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from video_processor import VideoFrameExtractor
-from sop_analyzer import SOPAnalyzer
 from pdf_generator import SOPPDFGenerator
 from datetime import datetime
 
@@ -18,14 +23,36 @@ from datetime import datetime
 load_dotenv()
 
 
+def get_ai_mode() -> str:
+    """
+    Zjistí aktuální AI režim z .env.
+    
+    Returns:
+        'API' nebo 'LOCAL'
+    """
+    return os.getenv("AI_MODE", "API").upper()
+
+
 class VideoToSOPGenerator:
     """Main application class for Video-to-SOP generation"""
     
-    def __init__(self):
-        """Initialize the generator"""
+    def __init__(self, mode: str = None):
+        """
+        Initialize the generator.
+        
+        Args:
+            mode: 'API', 'LOCAL' nebo None (auto z .env)
+        """
+        self.mode = mode or get_ai_mode()
         self.video_processor = VideoFrameExtractor(interval_seconds=2)
-        self.analyzer = SOPAnalyzer()
         self.pdf_generator = SOPPDFGenerator()
+        
+        # CZ: Zobrazíme aktuální režim
+        print(f"\n🔧 AI Mode: {self.mode}")
+        if self.mode == "LOCAL":
+            print("   Using: Ollama VLM + faster-whisper (GPU)")
+        else:
+            print("   Using: Gemini API + Groq Whisper (Cloud)")
     
     def generate_sop(
         self,
@@ -71,22 +98,25 @@ class VideoToSOPGenerator:
         print("STEP 1: VIDEO PROCESSING")
         print("=" * 60)
         
-        # Step 1a: Extract audio transcript (using Whisper via Groq)
+        # Step 1a: Extract audio transcript (hybridní režim)
         audio_transcript = ""
         audio_start_time = time.time()
+        audio_elapsed = 0
         try:
-            from whisper_transcription import transcribe_video_audio
-            groq_api_key = os.getenv("GROQ_API_KEY")
-            if groq_api_key:
-                audio_transcript = transcribe_video_audio(video_path, groq_api_key) or ""
-                if audio_transcript:
-                    audio_elapsed = time.time() - audio_start_time
-                    print(f"✓ Audio transcript extracted: {len(audio_transcript)} characters")
-                    print(f"  Time: {int(audio_elapsed // 60)}m {int(audio_elapsed % 60)}s")
-            else:
-                print("⚠️  GROQ_API_KEY not found, skipping audio transcription")
+            from whisper_transcription import get_transcript
+            
+            # CZ: Použije správný backend podle AI_MODE
+            audio_transcript = get_transcript(video_path, mode=self.mode) or ""
+            
+            if audio_transcript:
+                audio_elapsed = time.time() - audio_start_time
+                print(f"✓ Audio transcript extracted: {len(audio_transcript)} characters")
+                print(f"  Time: {int(audio_elapsed // 60)}m {int(audio_elapsed % 60)}s")
+                
         except Exception as e:
             print(f"⚠️  Audio transcription skipped: {e}")
+            import traceback
+            traceback.print_exc()
         
         # Initialize frames
         frames = []
@@ -108,12 +138,16 @@ class VideoToSOPGenerator:
         print(f"\n✓ Extracted {len(frames)} frames")
         print(f"  Time: {int(frame_elapsed // 60)}m {int(frame_elapsed % 60)}s")
         
-        # Step 2: Analyze with AI
+        # Step 2: Analyze with AI (hybridní režim)
         print("\n" + "=" * 60)
-        print("STEP 2: AI ANALYSIS (with Audio Transcript)")
+        print(f"STEP 2: AI ANALYSIS ({self.mode} mode)")
         print("=" * 60)
         analysis_start_time = time.time()
-        sop_data = self.analyzer.analyze_video_frames(frames, context, audio_transcript)
+        
+        # CZ: Použije správný backend podle AI_MODE
+        from sop_analyzer import analyze_frames
+        sop_data = analyze_frames(frames, context, audio_transcript, mode=self.mode)
+        
         analysis_elapsed = time.time() - analysis_start_time
         
         print(f"\n✓ Generated SOP: {sop_data['title']}")
@@ -208,15 +242,36 @@ def main():
     
     args = parser.parse_args()
     
-    # Check for API key
-    if not os.getenv("GOOGLE_API_KEY"):
-        print("ERROR: GOOGLE_API_KEY not found!")
-        print("Please create a .env file with your API key:")
-        print("  GOOGLE_API_KEY=your_api_key_here")
-        sys.exit(1)
+    # CZ: Zjistíme režim a ověříme prerekvizity
+    ai_mode = get_ai_mode()
     
-    # Create generator
-    generator = VideoToSOPGenerator()
+    if ai_mode == "API":
+        # CZ: V API módu potřebujeme klíče
+        if not os.getenv("GOOGLE_API_KEY"):
+            print("ERROR: GOOGLE_API_KEY not found!")
+            print("Please create a .env file with your API key:")
+            print("  GOOGLE_API_KEY=your_api_key_here")
+            print("\nOr switch to local GPU mode:")
+            print("  AI_MODE=LOCAL")
+            sys.exit(1)
+    else:
+        # CZ: V LOCAL módu ověříme Ollama
+        print("\n🔍 Checking local GPU prerequisites...")
+        try:
+            from local_vlm import OllamaVLMAnalyzer
+            analyzer = OllamaVLMAnalyzer()
+            if not analyzer.check_connection():
+                print("\n❌ Ollama is not ready. Please:")
+                print("   1. Install Ollama: https://ollama.com/download")
+                print("   2. Start Ollama: ollama serve")
+                print(f"   3. Pull model: ollama pull {analyzer.model}")
+                sys.exit(1)
+        except ImportError:
+            print("❌ local_vlm.py not found!")
+            sys.exit(1)
+    
+    # Create generator with detected mode
+    generator = VideoToSOPGenerator(mode=ai_mode)
     
     try:
         # Generate SOP
