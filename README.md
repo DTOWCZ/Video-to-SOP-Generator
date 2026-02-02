@@ -2,6 +2,8 @@
 
 Convert training videos into professional Standard Operating Procedure (SOP) manuals automatically using AI.
 
+> **Note:** This project is a fork of [Shezan57/Video-to-SOP-Generator](https://github.com/Shezan57/Video-to-SOP-Generator). It has been refactored to support **Local LLM/VLM execution** (using Ollama and faster-whisper) for privacy and zero-cost operation, alongside the original Cloud API functionality.
+
 ## ✨ What's New in v2.1
 
 - 🚀 **Local GPU Mode** - Run entirely on your own hardware (Ollama + faster-whisper)
