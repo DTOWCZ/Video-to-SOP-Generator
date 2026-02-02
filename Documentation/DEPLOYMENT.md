@@ -30,7 +30,7 @@ This guide covers deploying the Video-to-SOP Generator web application to variou
 
 3. **Create Heroku App**:
    ```bash
-   cd d:\SHEZAN\AI\Video-to-SOP-Generator
+   cd d:\AI\GitHub\Video-to-SOP-Generator
    heroku create video-sop-generator-app
    # Replace 'video-sop-generator-app' with your preferred app name
    ```
@@ -170,7 +170,7 @@ heroku config:set WEB_CONCURRENCY=2
 4. **Clone Repository**:
    ```bash
    cd /home/ubuntu
-   git clone https://github.com/Shezan57/Video-to-SOP-Generator.git
+   git clone https://github.com/DTOWCZ/Video-to-SOP-Generator.git
    cd Video-to-SOP-Generator
    ```
 

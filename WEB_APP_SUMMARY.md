@@ -192,7 +192,7 @@ A production-ready web interface with the following features:
 
 ### Prerequisites for Deployment
 
-- ✅ Git repository (already on GitHub: Shezan57/Video-to-SOP-Generator)
+- ✅ Git repository (already on GitHub: DTOWCZ/Video-to-SOP-Generator)
 - ✅ Python 3.11 specified in runtime.txt
 - ✅ requirements.txt with Flask dependencies
 - ✅ Procfile for Gunicorn WSGI server
@@ -449,10 +449,10 @@ Successfully transformed the CLI Video-to-SOP Generator into a full-stack web ap
 
 ---
 
-**Repository**: https://github.com/Shezan57/Video-to-SOP-Generator  
+**Repository**: https://github.com/DTOWCZ/Video-to-SOP-Generator  
 **Version**: 2.1 (Web Interface)  
 **Date**: January 2025  
-**Author**: Shezan  
+**Author**: Dominik  
 **License**: MIT
 
 ---

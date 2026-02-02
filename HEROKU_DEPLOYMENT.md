@@ -44,7 +44,7 @@ This will open your browser. Login with your Heroku account (the one with Studen
 ## Step 3: Create Heroku App
 
 ```powershell
-cd d:\SHEZAN\AI\Video-to-SOP-Generator
+cd d:\AI\GitHub\Video-to-SOP-Generator
 
 # Create app (choose unique name)
 heroku create video-sop-generator

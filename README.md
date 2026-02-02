@@ -108,7 +108,7 @@ This will:
 python main.py video.mp4 \
   --output my_sop.pdf \
   --context "Car Tire Repair and Replacement" \
-  --company "Shezan Car Garage"
+  --company "Demo Car Garage"
 ```
 
 ### Command-Line Options

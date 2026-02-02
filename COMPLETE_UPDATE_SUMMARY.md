@@ -238,7 +238,7 @@ python main.py "video.mp4" --output "sop.pdf" --context "Task Description" --com
 python main.py "Videos\repair_tutorial.webm" \
   --output "repair_sop.pdf" \
   --context "Equipment Repair and Reassembly" \
-  --company "Shezan Car Garage"
+  --company "Demo Car Garage"
 ```
 
 ---

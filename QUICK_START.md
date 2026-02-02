@@ -25,7 +25,7 @@ Browser    Register/Login    Upload via Web    Get PDF
 ##  RUN IT NOW (3 commands)
 
 `powershell
-cd D:\SHEZAN\AI\Video-to-SOP-Generator\frontend
+cd d:\AI\GitHub\Video-to-SOP-Generator\webapp
 pip install -r requirements.txt
 python app.py
 `

@@ -222,7 +222,7 @@ Successfully developed a production-ready full-stack application that:
 
 ## 📞 Quick Links
 
-- **Repository**: https://github.com/Shezan57/Video-to-SOP-Generator
+- **Repository**: https://github.com/DTOWCZ/Video-to-SOP-Generator
 - **Full Report**: `PROJECT_REPORT.md`
 - **Quick Deploy**: `DEPLOY_QUICK.md`
 - **Documentation**: `README.md`

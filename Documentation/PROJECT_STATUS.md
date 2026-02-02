@@ -220,7 +220,7 @@ You need these API keys (all FREE):
 - Multi-platform: DEPLOYMENT.md
 
 ### Repository
-- GitHub: https://github.com/Shezan57/Video-to-SOP-Generator
+- GitHub: https://github.com/DTOWCZ/Video-to-SOP-Generator
 - Branch: main
 - Latest Commit: Heroku deployment guides
 

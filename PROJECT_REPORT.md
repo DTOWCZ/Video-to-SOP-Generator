@@ -10,7 +10,7 @@
 **Duration**: December 2025  
 **Status**: Production Ready  
 **Repository**: https://github.com/DTOWCZ/Video-to-SOP-Generator
-**Original Repository**: https://github.com/Shezan57/Video-to-SOP-Generator
+
 
 ### Overview
 Developed an intelligent web application that automatically converts instructional videos into comprehensive Standard Operating Procedure (SOP) documents. The system leverages AI technologies including Whisper for audio transcription and Google Gemini for visual analysis, processing videos 15x faster than traditional methods.

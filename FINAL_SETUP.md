@@ -60,7 +60,7 @@ python main.py "your_video.mp4"
 
 ### Full Options
 ```powershell
-python main.py "D:\SHEZAN\AI\Video-to-SOP Generator\Videos\test_video1.webm" `
+python main.py "d:\AI\GitHub\Video-to-SOP-Generator\Videos\test_video1.webm" `
   --output "zipper_repair_sop.pdf" `
   --context "Zipper repair tutorial" `
   --company "Guiding Bolt"

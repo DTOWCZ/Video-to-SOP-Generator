@@ -132,7 +132,7 @@ python main.py "video.mp4"
 ## Version
 
 **v2.0.0** - December 2, 2025  
-**Repository:** github.com/Shezan57/Video-to-SOP-Generator
+**Repository:** github.com/DTOWCZ/Video-to-SOP-Generator
 
 ---
 

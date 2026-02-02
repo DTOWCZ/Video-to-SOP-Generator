@@ -10,7 +10,7 @@ choco install heroku-cli
 heroku login
 
 # 3. Navigate to project
-cd d:\SHEZAN\AI\Video-to-SOP-Generator
+cd d:\AI\GitHub\Video-to-SOP-Generator
 
 # 4. Create app
 heroku create video-sop-generator

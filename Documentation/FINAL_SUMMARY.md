@@ -101,7 +101,7 @@ python main.py "video.mp4" --output "output.pdf" --context "Task Description" --
 python main.py "Videos\repair_tutorial.webm" \
   --output "repair_sop.pdf" \
   --context "Car Tire Repair Tutorial" \
-  --company "Shezan Car Garage"
+  --company "Demo Car Garage"
 ```
 
 ### What Happens
@@ -212,7 +212,7 @@ All changes committed and pushed to GitHub:
 ✅ Commit 3: Comprehensive changelog and updated quick start
 ```
 
-**Repository:** https://github.com/Shezan57/Video-to-SOP-Generator
+**Repository:** https://github.com/DTOWCZ/Video-to-SOP-Generator
 
 ---
 
@@ -299,5 +299,5 @@ You now have a production-ready Video-to-SOP Generator with:
 **Version:** 2.0.0  
 **Status:** Production Ready ✅  
 **Last Updated:** December 2, 2025  
-**Author:** Shezan  
-**Repository:** https://github.com/Shezan57/Video-to-SOP-Generator
+**Author:** Dominik  
+**Repository:** https://github.com/DTOWCZ/Video-to-SOP-Generator

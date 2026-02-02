@@ -4,7 +4,7 @@
 
 ### Step 1: Activate Virtual Environment
 ```powershell
-cd d:\SHEZAN\AI\Video-to-SOP-Generator
+cd d:\AI\GitHub\Video-to-SOP-Generator
 .\myvenv\Scripts\Activate.ps1
 ```
 
