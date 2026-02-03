@@ -44,50 +44,83 @@ This tool uses multimodal AI (Gemini 2.5 Pro) and Whisper to watch industrial/ma
 
 ### Prerequisites
 
-- Python 3.8+
-- FFmpeg ([Installation guide](FFMPEG_SETUP.md))
+- **Python 3.8+** (Windows/Linux)
+- **FFmpeg** ([Installation guide](FFMPEG_SETUP.md) or see [PLATFORM_SETUP.md](PLATFORM_SETUP.md))
+- **NVIDIA GPU** (for LOCAL mode):
+  - **RTX 6000 PRO Blackwell (96GB)**: Optimal for `llama3.2-vision:90b` ⚡
+  - **RTX 4090 (24GB)**: Perfect for `llama3.2-vision:11b` ⚡
+  - **RTX 3090/3080 Ti (24GB/12GB)**: Compatible with `llama3.2-vision:11b`
+  - Other NVIDIA GPUs: Run `python gpu_detector.py` for recommendations
 - **AI Backend Options:**
-  - **LOCAL (Recommended for GPU users):** [Ollama](https://ollama.com/) with a Vision model (e.g., `llama3.2-vision`) + `faster-whisper`.
-  - **API (Cloud):** Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikey)) + Groq API key for Whisper ([Get one here](https://console.groq.com/)).
+  - **LOCAL (Recommended for GPU users):** [Ollama](https://ollama.com/) with a Vision model + `faster-whisper`
+    - **Auto-detection**: The application automatically detects your GPU and selects the optimal model
+  - **API (Cloud):** Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikey)) + Groq API key ([Get one here](https://console.groq.com/))
 
-### Setup
+### Platform-Specific Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/DTOWCZ/Video-to-SOP-Generator.git
-   cd Video-to-SOP-Generator
-   ```
+**🪟 Windows (RTX 4090):**
+```powershell
+.\setup_windows.ps1
+```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate  # Windows
-   ```
+**🐧 Linux (RTX 6000 PRO Blackwell):**
+```bash
+chmod +x setup_linux.sh && ./setup_linux.sh
+```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+**📖 Detailed Instructions:** See [PLATFORM_SETUP.md](PLATFORM_SETUP.md) for manual setup on both platforms.
 
-4. **Choose your AI backend**:
+### Quick Setup (Automated)
 
-#### Option A: Local GPU (Recommended)
-You need to have [Ollama](https://ollama.com/) installed and a capable GPU (e.g., RTX 3090, 4090, or professional 6000 series).
-- **Setup Guide**: See [LOCAL_GPU_IMPLEMENTATION.md](LOCAL_GPU_IMPLEMENTATION.md) for full instructions.
-- **Quick Command**: `ollama pull llama3.2-vision:90b`
+**Windows:**
+```powershell
+# Download repository
+git clone https://github.com/DTOWCZ/Video-to-SOP-Generator.git
+cd Video-to-SOP-Generator
 
-#### Option B: Cloud API
-- Set up Gemini and Groq API keys as shown below.
+# Run automated setup
+.\setup_windows.ps1
+```
 
-5. **Configure environment**:
-   - Copy `.env.example` to `.env`
-   - Set `AI_MODE=LOCAL` or `AI_MODE=API`
-   - Fill in relevant keys:
-     ```ini
-     AI_MODE=LOCAL
-     GOOGLE_API_KEY=your_key  # Optional if LOCAL
-     GROQ_API_KEY=your_key    # Optional if LOCAL
-     ```
+**Linux:**
+```bash
+# Download repository
+git clone https://github.com/DTOWCZ/Video-to-SOP-Generator.git
+cd Video-to-SOP-Generator
+
+# Run automated setup
+chmod +x setup_linux.sh
+./setup_linux.sh
+```
+
+The setup script will:
+- ✅ Detect your GPU (RTX 4090 / RTX 6000)
+- ✅ Install all dependencies (FFmpeg, Python packages, Ollama)
+- ✅ Recommend optimal AI model based on your VRAM
+- ✅ Download the vision model (if you choose)
+- ✅ Create `.env` configuration file
+
+### Manual Setup
+
+If you prefer manual installation, see detailed instructions in [PLATFORM_SETUP.md](PLATFORM_SETUP.md).
+
+### Configuration
+
+After setup, edit `.env` file:
+
+**For LOCAL mode (RTX 4090 / RTX 6000):**
+```ini
+AI_MODE=LOCAL
+OLLAMA_MODEL=           # Leave empty for auto-detection
+WHISPER_MODEL=          # Leave empty for auto-detection
+```
+
+**For API mode (Cloud):**
+```ini
+AI_MODE=API
+GOOGLE_API_KEY=your_key_here
+GROQ_API_KEY=your_key_here
+```
 
 ## Usage
 

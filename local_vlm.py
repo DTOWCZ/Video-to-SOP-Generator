@@ -29,14 +29,34 @@ class OllamaVLMAnalyzer:
         
         Args:
             host: Ollama server URL (default from .env or localhost:11434)
-            model: Model name (default from .env or llama3.2-vision:90b)
+            model: Model name (default from .env or auto-detected based on GPU)
             timeout: Timeout for API calls in seconds
         """
         from dotenv import load_dotenv
         load_dotenv()
         
         self.host = host or os.getenv("OLLAMA_HOST", "http://localhost:11434")
-        self.model = model or os.getenv("OLLAMA_MODEL", "llama3.2-vision:90b")
+        
+        # Cz: Automatické doporučení modelu podle GPU, pokud není explicitně zadáno
+        if model is None and not os.getenv("OLLAMA_MODEL"):
+            try:
+                from gpu_detector import GPUDetector
+                detector = GPUDetector()
+                recommended = detector.recommend_model()
+                
+                if recommended != "API_MODE_RECOMMENDED":
+                    self.model = recommended
+                    print(f"ℹ️  Auto-detected GPU: {detector.gpu_info['name']} ({detector.gpu_info['vram_gb']:.1f}GB)")
+                    print(f"ℹ️  Auto-selected model: {self.model}")
+                else:
+                    # Cz: Fallback na menší model
+                    self.model = "llama3.2-vision:11b"
+            except Exception as e:
+                # Cz: Pokud detekce selže, použijeme výchozí model
+                self.model = "llama3.2-vision:11b"
+        else:
+            self.model = model or os.getenv("OLLAMA_MODEL", "llama3.2-vision:90b")
+        
         self.timeout = timeout
         
         # Remove trailing slash if it exists
