@@ -26,6 +26,40 @@ class VideoFrameExtractor:
         self.interval_seconds = interval_seconds
         self.resize_width = resize_width
     
+    def _get_ffmpeg_path(self) -> str:
+        """
+        Find FFmpeg executable with fallback.
+        
+        Tries system FFmpeg first, then falls back to imageio_ffmpeg.
+        """
+        # Try system ffmpeg in PATH
+        try:
+            result = subprocess.run(
+                ['ffmpeg', '-version'],
+                capture_output=True,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+            )
+            if result.returncode == 0:
+                return 'ffmpeg'
+        except FileNotFoundError:
+            pass
+        
+        # Fallback to imageio_ffmpeg (bundled FFmpeg)
+        try:
+            from imageio_ffmpeg import get_ffmpeg_exe
+            ffmpeg_path = get_ffmpeg_exe()
+            print(f"ℹ️  Using bundled FFmpeg from imageio_ffmpeg: {ffmpeg_path}")
+            return ffmpeg_path
+        except ImportError:
+            pass
+        
+        raise FileNotFoundError(
+            "FFmpeg not found! Install it with:\n"
+            "  Windows: winget install Gyan.FFmpeg\n"
+            "  Linux:   sudo apt install ffmpeg\n"
+            "  Or:      pip install imageio[ffmpeg]"
+        )
+    
     def extract_frames(self, video_path: str, output_dir: str = None) -> List[Dict]:
         """
         Extract frames from video at specified intervals using FFmpeg
@@ -55,6 +89,9 @@ class VideoFrameExtractor:
         print(f"Video Info: {duration:.2f}s, {info['fps']:.2f} FPS, {info['total_frames']} frames")
         print(f"Extracting 1 frame every {self.interval_seconds} seconds using FFmpeg...")
         
+        # Find FFmpeg path (system or fallback)
+        ffmpeg_path = self._get_ffmpeg_path()
+        
         # Create output directory or use temp directory
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
@@ -64,10 +101,13 @@ class VideoFrameExtractor:
             temp_dir = tempfile.mkdtemp()
             cleanup_temp = True
         
+        # Windows-specific flag – prevent console window from popping up
+        creation_flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+        
         try:
             # Build FFmpeg command
             cmd = [
-                'ffmpeg',
+                ffmpeg_path,
                 '-i', video_path,
                 '-vf', f'fps=1/{self.interval_seconds},scale={self.resize_width}:-1',
                 '-q:v', '2',  # High quality JPEG
@@ -77,7 +117,10 @@ class VideoFrameExtractor:
             ]
             
             # Execute FFmpeg
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True,
+                creationflags=creation_flags
+            )
             
             if result.returncode != 0:
                 raise Exception(f"FFmpeg error: {result.stderr}")

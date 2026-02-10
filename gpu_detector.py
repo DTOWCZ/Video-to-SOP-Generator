@@ -24,7 +24,7 @@ class GPUDetector:
             Dictionary with GPU name, VRAM, and other info
         """
         try:
-            # Cz: Pokusíme se spustit nvidia-smi a získat informace o GPU
+            # Try to run nvidia-smi and get GPU info
             result = subprocess.run(
                 ['nvidia-smi', '--query-gpu=name,memory.total', '--format=csv,noheader,nounits'],
                 capture_output=True,
@@ -33,7 +33,7 @@ class GPUDetector:
             )
             
             if result.returncode == 0:
-                # Cz: Parse první GPU (pokud je více GPU, vezmeme první)
+                # Parse first GPU (if multiple GPUs, take the first one)
                 line = result.stdout.strip().split('\n')[0]
                 name, vram_mb = line.split(',')
                 
@@ -46,7 +46,7 @@ class GPUDetector:
         except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
             print(f"⚠️ GPU detection failed: {e}")
         
-        # Cz: Pokud detekce selhala, vrátíme výchozí hodnoty
+        # If detection failed, return default values
         return {
             'name': 'Unknown',
             'vram_gb': 0,
@@ -63,7 +63,7 @@ class GPUDetector:
         """
         vram = self.gpu_info['vram_gb']
         
-        # Cz: Doporučení modelu podle dostupné VRAM
+        # Model recommendation based on available VRAM
         if vram >= 80:
             # RTX 6000 Blackwell (~96GB) or similar
             return "llama3.2-vision:90b"
@@ -77,7 +77,7 @@ class GPUDetector:
             # RTX 4070 Ti, RTX 3080 Ti
             return "llama3.2-vision:11b"
         else:
-            # Cz: Méně než 12GB - doporučíme API mode
+            # Less than 12GB - recommend API mode
             return "API_MODE_RECOMMENDED"
     
     def recommend_whisper_model(self) -> str:
@@ -89,7 +89,7 @@ class GPUDetector:
         """
         vram = self.gpu_info['vram_gb']
         
-        # Cz: Whisper large-v3 vyžaduje ~10GB VRAM pro rychlé zpracování
+        # Whisper large-v3 requires ~10GB VRAM for fast processing
         if vram >= 16:
             return "large-v3"
         elif vram >= 8:
@@ -116,7 +116,7 @@ class GPUDetector:
         
         print("\n📋 RECOMMENDED CONFIGURATION:")
         
-        # Cz: Doporučení pro vision model
+        # Vision model recommendation
         vision_model = self.recommend_model()
         if vision_model == "API_MODE_RECOMMENDED":
             print("   ⚠️ Insufficient VRAM for local models")
@@ -184,7 +184,7 @@ def detect_and_configure() -> Dict:
 
 
 if __name__ == "__main__":
-    # Cz: CLI pro testování detekce GPU
+    # CLI for GPU detection testing
     config = detect_and_configure()
     
     print("\n📝 Configuration Summary:")

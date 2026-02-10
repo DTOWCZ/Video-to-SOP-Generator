@@ -37,7 +37,7 @@ class OllamaVLMAnalyzer:
         
         self.host = host or os.getenv("OLLAMA_HOST", "http://localhost:11434")
         
-        # Cz: Automatické doporučení modelu podle GPU, pokud není explicitně zadáno
+        # Auto-recommend model based on GPU if not explicitly specified
         if model is None and not os.getenv("OLLAMA_MODEL"):
             try:
                 from gpu_detector import GPUDetector
@@ -49,10 +49,10 @@ class OllamaVLMAnalyzer:
                     print(f"ℹ️  Auto-detected GPU: {detector.gpu_info['name']} ({detector.gpu_info['vram_gb']:.1f}GB)")
                     print(f"ℹ️  Auto-selected model: {self.model}")
                 else:
-                    # Cz: Fallback na menší model
+                    # Fallback to smaller model
                     self.model = "llama3.2-vision:11b"
             except Exception as e:
-                # Cz: Pokud detekce selže, použijeme výchozí model
+                # If detection fails, use default model
                 self.model = "llama3.2-vision:11b"
         else:
             self.model = model or os.getenv("OLLAMA_MODEL", "llama3.2-vision:90b")
@@ -124,11 +124,23 @@ class OllamaVLMAnalyzer:
         
         print(f"Analyzing {len(frames)} frames with {self.model}...")
         
-        # Create prompt
-        prompt = self._create_prompt(frames, context, audio_transcript)
+        # Ollama VLM models can typically handle max 10-20 images at once.
+        # For longer videos, subsample evenly across the entire video.
+        MAX_FRAMES = 20
+        if len(frames) > MAX_FRAMES:
+            # Evenly distribute frame selection across the video
+            step = len(frames) / MAX_FRAMES
+            sampled_frames = [frames[int(i * step)] for i in range(MAX_FRAMES)]
+            print(f"ℹ️  Subsampled {len(frames)} frames → {len(sampled_frames)} frames (max {MAX_FRAMES} for VLM)")
+            analysis_frames = sampled_frames
+        else:
+            analysis_frames = frames
+        
+        # Create prompt (using sampled frames for correct timestamp info)
+        prompt = self._create_prompt(analysis_frames, context, audio_transcript)
         
         # Prepare images for Ollama API
-        images_base64 = [frame["image_data"] for frame in frames]
+        images_base64 = [frame["image_data"] for frame in analysis_frames]
         
         # Call Ollama API
         try:
@@ -250,7 +262,10 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.""
         return prompt
     
     def _parse_response(self, response_text: str) -> Dict:
-        """Parses LLM response into structured JSON."""
+        """Parses LLM response into structured JSON.
+        
+        Robust parsing – local models sometimes wrap JSON in surrounding text.
+        """
         
         # Remove markdown blocks if present
         text = response_text.strip()
@@ -263,26 +278,46 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.""
         
         text = text.strip()
         
+        # Try direct parsing first
         try:
             data = json.loads(text)
+        except json.JSONDecodeError:
+            # Fallback – find JSON object inside surrounding text
+            start_idx = text.find('{')
+            end_idx = text.rfind('}')
             
-            # Validate structure
-            if "title" not in data or "steps" not in data:
-                raise ValueError("Response missing required fields: title or steps")
+            if start_idx == -1 or end_idx == -1 or end_idx <= start_idx:
+                print(f"Failed to find JSON in response")
+                print(f"Response text: {text[:500]}...")
+                raise ValueError("LLM did not return valid JSON")
             
-            # Check required fields in steps
-            for step in data["steps"]:
-                required_fields = ["step_number", "instruction", "timestamp_seconds"]
-                for field in required_fields:
-                    if field not in step:
-                        raise ValueError(f"Step missing required field: {field}")
+            json_str = text[start_idx:end_idx + 1]
             
-            return data
+            try:
+                data = json.loads(json_str)
+            except json.JSONDecodeError as e:
+                print(f"Failed to parse extracted JSON: {e}")
+                print(f"Extracted JSON: {json_str[:500]}...")
+                raise ValueError("LLM did not return valid JSON")
+        
+        # Validate structure
+        if "title" not in data or "steps" not in data:
+            raise ValueError("Response missing required fields: title or steps")
+        
+        # Ensure steps have all required fields
+        for i, step in enumerate(data["steps"]):
+            step.setdefault("step_number", i + 1)
+            step.setdefault("reasoning", "")
             
-        except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON response: {e}")
-            print(f"Response text: {text[:500]}...")
-            raise ValueError("LLM did not return valid JSON")
+            required_fields = ["instruction", "timestamp_seconds"]
+            for field in required_fields:
+                if field not in step:
+                    raise ValueError(f"Step {i+1} missing required field: {field}")
+        
+        data.setdefault("description", "")
+        data.setdefault("safety_notes", [])
+        
+        return data
 
 
 def analyze_video_frames_local(

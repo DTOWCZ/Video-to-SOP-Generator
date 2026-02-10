@@ -24,7 +24,7 @@ class LocalWhisperTranscriber:
         device: str = "cuda"
     ):
         """
-        Inicializace lokálního Whisper modelu.
+        Initialize the local Whisper model.
         
         Args:
             model_size: Model size (tiny, base, small, medium, large-v3)
@@ -75,7 +75,7 @@ class LocalWhisperTranscriber:
             task: "transcribe" or "translate" (to English)
             
         Returns:
-            Formátovaný přepis s časovými značkami
+            Formatted transcript with timestamps
         """
         self._load_model()
         
@@ -176,10 +176,10 @@ def extract_audio_ffmpeg(video_path: str, output_path: str = None) -> Optional[s
         cmd = [
             ffmpeg_cmd,
             '-i', video_path,
-            '-vn',  # CZ: Bez videa
+            '-vn',  # No video stream
             '-acodec', 'libmp3lame',
-            '-ar', '16000',  # CZ: 16kHz sample rate
-            '-ac', '1',  # CZ: Mono
+            '-ar', '16000',  # 16kHz sample rate (optimal for speech)
+            '-ac', '1',  # Mono channel
             '-y',  # Overwrite output
             output_path
         ]

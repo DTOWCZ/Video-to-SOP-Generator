@@ -1,6 +1,9 @@
 """
 AI Analyzer Module
 Uses Gemini 2.5 Pro to analyze video frames and generate SOP steps
+
+# Note: google.generativeai and PIL are lazy-loaded inside SOPAnalyzer,
+#       so LOCAL mode won't crash if the google-generativeai package is missing.
 """
 
 import os
@@ -9,8 +12,6 @@ import io
 import base64
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
-from PIL import Image
-import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
@@ -26,6 +27,16 @@ class SOPAnalyzer:
         Args:
             api_key: Google API key (if not provided, reads from .env)
         """
+        # Lazy import – only load google.generativeai when actually needed
+        try:
+            import google.generativeai as genai
+        except ImportError:
+            raise ImportError(
+                "google-generativeai is not installed. "
+                "Install it with: pip install google-generativeai\n"
+                "Or switch to LOCAL mode: AI_MODE=LOCAL in .env"
+            )
+        
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         
         if not self.api_key:
@@ -34,6 +45,7 @@ class SOPAnalyzer:
         # Configure Google API
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self._genai = genai  # Store reference for later use
     
     def analyze_video_frames(self, frames: List[Dict], context: str = "", audio_transcript: str = "") -> Dict:
         """
@@ -56,6 +68,9 @@ class SOPAnalyzer:
         content_parts = [prompt]
         
         # Add images to the content
+        # Lazy import PIL – only needed in API mode
+        from PIL import Image
+        
         for frame in frames:
             # Decode base64 image data and create PIL Image
             image_bytes = base64.b64decode(frame['image_data'])
@@ -166,7 +181,12 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.
         return prompt
     
     def _parse_response(self, response_text: str) -> Dict:
-        """Parse the LLM response into structured JSON"""
+        """Parse the LLM response into structured JSON
+        
+        Robust parsing – LLMs sometimes return text around the JSON block,
+        so we look for the first '{' and last '}' to extract it.
+        """
+
         
         # Remove markdown code blocks if present
         text = response_text.strip()
@@ -179,26 +199,48 @@ Output ONLY valid JSON. Do not include any markdown formatting or code blocks.
         
         text = text.strip()
         
+        # Try direct parsing first
         try:
             data = json.loads(text)
+        except json.JSONDecodeError:
+            # Fallback – find JSON object inside surrounding text
+            start_idx = text.find('{')
+            end_idx = text.rfind('}')
             
-            # Validate structure
-            if "title" not in data or "steps" not in data:
-                raise ValueError("Response missing required fields: title or steps")
+            if start_idx == -1 or end_idx == -1 or end_idx <= start_idx:
+                print(f"Failed to find JSON in response")
+                print(f"Response text: {text[:500]}...")
+                raise ValueError("LLM did not return valid JSON")
             
-            # Ensure steps have required fields
-            for step in data["steps"]:
-                required_fields = ["step_number", "instruction", "timestamp_seconds"]
-                for field in required_fields:
-                    if field not in step:
-                        raise ValueError(f"Step missing required field: {field}")
+            json_str = text[start_idx:end_idx + 1]
             
-            return data
+            try:
+                data = json.loads(json_str)
+            except json.JSONDecodeError as e:
+                print(f"Failed to parse extracted JSON: {e}")
+                print(f"Extracted JSON: {json_str[:500]}...")
+                raise ValueError("LLM did not return valid JSON")
+        
+        # Validate structure
+        if "title" not in data or "steps" not in data:
+            raise ValueError("Response missing required fields: title or steps")
+        
+        # Ensure steps have all required and optional fields
+        for i, step in enumerate(data["steps"]):
+            # Add defaults for missing optional fields
+            step.setdefault("step_number", i + 1)
+            step.setdefault("reasoning", "")
             
-        except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON response: {e}")
-            print(f"Response text: {text[:500]}...")
-            raise ValueError("LLM did not return valid JSON")
+            required_fields = ["instruction", "timestamp_seconds"]
+            for field in required_fields:
+                if field not in step:
+                    raise ValueError(f"Step {i+1} missing required field: {field}")
+        
+        # Default values for missing top-level fields
+        data.setdefault("description", "")
+        data.setdefault("safety_notes", [])
+        
+        return data
 
 
 # ============================================================

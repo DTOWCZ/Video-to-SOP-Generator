@@ -1,40 +1,28 @@
-# Video-to-SOP Generator Requirements
+# ============================================================
+# Video-to-SOP Generator - Dependencies
+# ============================================================
 
 # Video Processing
 opencv-python>=4.8.0
-moviepy>=1.0.3
 numpy>=1.24.0
 
-# Audio Processing (Whisper via Groq)
+# FFmpeg bindings (fallback if system FFmpeg not in PATH)
+imageio[ffmpeg]>=2.31.0
+
+# Audio Processing (Whisper via Groq - API mode)
 groq>=0.4.0
 
-# AI/LLM
+# AI/LLM (Gemini - API mode)
 google-generativeai>=0.8.5
-python-dotenv>=1.0.0
 
 # PDF Generation
 reportlab>=4.0.0
 Pillow>=10.0.0
 
-# Utilities
+# Config & Utilities
+python-dotenv>=1.0.0
 requests>=2.31.0
 tqdm>=4.66.0
-# Frontend dependencies for SOP Generator
-
-# Flask and extensions
-Flask==3.0.0
-Flask-SQLAlchemy==3.1.1
-Flask-Login==0.6.3
-Werkzeug==3.0.1
-
-# Database
-SQLAlchemy==2.0.23
-
-# Environment
-python-dotenv==1.0.0
-
-# For production
-gunicorn==21.2.0
 
 # ============================================================
 # LOCAL GPU MODE (Ollama + faster-whisper)
@@ -47,4 +35,17 @@ faster-whisper>=1.0.0
 httpx>=0.27.0
 
 # GPU utilities (optional, for monitoring)
-nvidia-ml-py>=12.0.0
+# nvidia-ml-py>=12.0.0
+
+# ============================================================
+# FLASK WEB APP (optional, for webapp/)
+# ============================================================
+
+Flask>=3.0.0
+Flask-SQLAlchemy>=3.1.1
+Flask-Login>=0.6.3
+Werkzeug>=3.0.1
+SQLAlchemy>=2.0.23
+
+# For production deployment
+gunicorn>=21.2.0
